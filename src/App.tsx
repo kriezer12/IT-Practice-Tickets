@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CATEGORIES, getCategoryQuestions } from './data/catalog';
 import { CompletionView } from './components/CompletionView';
+import { Cheatsheet } from './components/Cheatsheet';
 import { Library } from './components/Library';
 import { PracticeView } from './components/PracticeView';
 import { UnavailableCase } from './components/UnavailableCase';
@@ -242,6 +243,10 @@ export default function App() {
   };
 
   const toggleTheme = () => setTheme((current) => current === 'light' ? 'dark' : 'light');
+
+  if (typeof window !== 'undefined' && window.location.pathname === '/cheatsheet') {
+    return <Cheatsheet theme={theme} onToggleTheme={toggleTheme} />;
+  }
 
   if (!categoryId) return <Library categories={CATEGORIES} progress={progress} onSelect={selectCategory} theme={theme} onToggleTheme={toggleTheme} />;
   if (showCompletion && activeCategory) return <CompletionView category={activeCategory} score={progress.scoreByCategory[categoryId]} questionCount={activeQuestions.length} onReview={reviewCategory} onRetry={resetTrack} onLibrary={returnToLibrary} />;

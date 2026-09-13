@@ -30,6 +30,7 @@ export function Library({ categories, progress, onSelect, theme, onToggleTheme }
           <span className="brand__words"><strong>IT SUPPORT LAB</strong><small>Practice the next check</small></span>
         </a>
         <div className="header-actions">
+          <a className="header-text-link" href="/cheatsheet">CHEATSHEET <span aria-hidden="true">↗</span></a>
           <span className="status-chip"><span className="status-dot" aria-hidden="true" />LOCAL SESSION</span>
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         </div>

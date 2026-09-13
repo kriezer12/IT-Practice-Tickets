@@ -27,8 +27,6 @@
   --answer-subtle: #a1a1aa;
   --answer-border: #3f3f46;
   --answer-focus: #f4f4f5;
-  --error: #ba1a1a;
-  --success: #1d7f4f;
 }
 
 :root[data-theme='dark'] {
@@ -55,8 +53,6 @@
   --answer-subtle: #52525b;
   --answer-border: #71717a;
   --answer-focus: #111113;
-  --error: #ff8e8e;
-  --success: #70d49e;
 }
 
 * { box-sizing: border-box; }
@@ -78,7 +74,7 @@ a { color: inherit; }
 .brand__words small { color: var(--ink-muted); font: 400 12px/1.2 'Geist Mono', 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace; }
 .header-actions, .practice-header__meta { display: flex; align-items: center; gap: 18px; }
 .status-chip, .section-count, .ticket-priority, .answer-badge { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-muted); font: 500 10px/1 'Geist Mono', 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace; letter-spacing: .13em; white-space: nowrap; }
-.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
 .icon-button { display: inline-flex; align-items: center; gap: 8px; border: 0; background: transparent; color: var(--ink-soft); min-height: 44px; padding: 10px 0; font: 500 11px/1 'Geist Mono', 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace; touch-action: manipulation; }
 .icon-button > span:first-child { font-size: 18px; line-height: .75; }
 .icon-button:hover, .icon-button:focus-visible { color: var(--ink); }
@@ -193,14 +189,14 @@ h1 em, .completion-page h1 em { font-style: normal; color: var(--ink-muted); }
 .secondary-button--inverse:hover { color: var(--inverse); background: var(--inverse-ink); }
 .panel-heading { display: flex; justify-content: space-between; gap: 20px; align-items: start; }
 .panel-heading h2 { max-width: 380px; margin: 14px 0 0; font-size: 31px; line-height: 1; letter-spacing: -.05em; font-weight: 600; }
-.panel-heading__mark { display: grid; width: 37px; height: 37px; place-items: center; border: 1px solid var(--success); border-radius: 50%; color: var(--success); font-size: 21px; }
+.panel-heading__mark { display: grid; width: 37px; height: 37px; place-items: center; border: 1px solid var(--ink); border-radius: 50%; color: var(--ink); font-size: 21px; }
 .evidence-list { display: grid; gap: 10px; margin-top: 28px; }
 .evidence-row { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: start; padding: 13px 14px; border-radius: 9px; background: var(--surface-low); }
 .evidence-status { display: inline-flex; align-items: center; justify-content: flex-start; gap: 7px; min-width: 64px; min-height: 28px; color: inherit; font: 600 10px/1 'Geist Mono', 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
 .evidence-status__glyph { display: grid; width: 25px; height: 25px; flex: 0 0 25px; place-items: center; border: 1px solid currentColor; border-radius: 50%; font: 600 14px/1 system-ui; }
 .evidence-status__label { white-space: nowrap; }
-.evidence-row--pass { color: var(--success); }
-.evidence-row--fail { color: var(--error); }
+.evidence-row--pass { color: var(--ink); }
+.evidence-row--fail { color: var(--inverse); }
 .evidence-row--note { color: var(--ink-muted); }
 .evidence-row strong, .evidence-row p { display: block; }
 .evidence-row strong { color: var(--ink); font-size: 13px; line-height: 1.2; }

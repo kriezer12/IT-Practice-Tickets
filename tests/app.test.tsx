@@ -2,6 +2,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
 import { UnavailableCase } from '../src/components/UnavailableCase';
+import { CompletionView } from '../src/components/CompletionView';
+import { CATEGORIES } from '../src/data/catalog';
 import '../src/styles.css';
 
 function openTrack(name: string) {
@@ -39,6 +41,11 @@ describe('guided practice flow', () => {
     expect(screen.getByText('FIRST CHECK RESULT')).toBeTruthy();
     expect(screen.getByText('Unlock the account and immediately reset the password')).toBeTruthy();
     expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to dark mode' }));
+    expect(screen.getByText('Pass')).toBeTruthy();
+    expect(screen.getByText('Fail')).toBeTruthy();
+    expect(screen.getByText('Note')).toBeTruthy();
   });
 
   it('moves between cases without losing the selected category context', () => {
@@ -220,5 +227,12 @@ describe('guided practice flow', () => {
     expect(screen.getByText('PC turns on, but no display')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'What would you check first?' })).toBeTruthy();
     confirm.mockRestore();
+  });
+
+  it('uses the catalog-provided question count in completion score and copy', () => {
+    render(<CompletionView category={CATEGORIES[0]} score={5} questionCount={7} onReview={vi.fn()} onRetry={vi.fn()} onLibrary={vi.fn()} />);
+
+    expect(screen.getByText('/ 07 RIGHT')).toBeTruthy();
+    expect(screen.getByText(/You worked through all 7 Active Directory cases/)).toBeTruthy();
   });
 });

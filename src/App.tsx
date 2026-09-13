@@ -242,7 +242,7 @@ export default function App() {
   const toggleTheme = () => setTheme((current) => current === 'light' ? 'dark' : 'light');
 
   if (!categoryId) return <Library categories={CATEGORIES} progress={progress} onSelect={selectCategory} theme={theme} onToggleTheme={toggleTheme} />;
-  if (showCompletion && activeCategory) return <CompletionView category={activeCategory} score={progress.scoreByCategory[categoryId]} onReview={reviewCategory} onRetry={resetTrack} onLibrary={returnToLibrary} />;
+  if (showCompletion && activeCategory) return <CompletionView category={activeCategory} score={progress.scoreByCategory[categoryId]} questionCount={activeQuestions.length} onReview={reviewCategory} onRetry={resetTrack} onLibrary={returnToLibrary} />;
   if (!activeCategory || !currentQuestion) return <UnavailableCase categoryName={activeCategory?.name} onBack={returnToLibrary} />;
 
   return <PracticeView

@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-13  
 **Status:** Design draft for review  
-**Source direction:** KO Design System from `C:/Users/osori/Desktop/Workspace/kennethosorio.dev/design.md` and the attached helpdesk ticket visual references.
+**Source direction:** The repository-local [KO Design System](../../../design.md) and the attached helpdesk ticket visual references.
 
 ## Outcome
 

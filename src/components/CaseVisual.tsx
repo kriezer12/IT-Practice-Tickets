@@ -1,16 +1,15 @@
 import type { PracticeVisual, PracticeVisualElement } from '../types';
+import { EVIDENCE_STATUS_METADATA } from './evidenceStatus';
 
 type CaseVisualProps = { visual: PracticeVisual };
 type ElementDetailsProps = { element: PracticeVisualElement; index: number; className: string };
-
-const statusLabels = { pass: 'Pass', fail: 'Fail', note: 'Note' } as const;
 
 function ElementDetails({ element, index, className }: ElementDetailsProps) {
   return (
     <details className={`${className} case-visual__detail case-visual__detail--${element.status}`}>
       <summary>
         <span className="case-visual__detail-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-        <span className="case-visual__detail-copy"><strong>{element.label}</strong><small>{statusLabels[element.status]} / inspect</small></span>
+        <span className="case-visual__detail-copy"><strong>{element.label}</strong><small>{EVIDENCE_STATUS_METADATA[element.status].label} / inspect</small></span>
       </summary>
       <p>{element.detail}</p>
     </details>
@@ -49,17 +48,12 @@ function TopologyVisual({ elements }: { elements: PracticeVisualElement[] }) {
 function SchematicVisual({ elements }: { elements: PracticeVisualElement[] }) {
   return (
     <div className="case-visual__schematic" role="group" aria-label="Hardware layout visualization">
-      <div className="case-visual__schematic-frame" aria-hidden="true">
-        <span className="case-visual__schematic-port case-visual__schematic-port--input">PORT / INPUT</span>
-        <span className="case-visual__schematic-trace case-visual__schematic-trace--input" />
-        <span className="case-visual__schematic-chip">DEVICE / BOARD</span>
-        <span className="case-visual__schematic-trace case-visual__schematic-trace--output" />
-        <span className="case-visual__schematic-port case-visual__schematic-port--output">PATH / SERVICE</span>
-      </div>
+      <div className="case-visual__schematic-frame" aria-hidden="true" />
       <ol className="case-visual__schematic-parts" aria-label="Hardware layout parts">
         {elements.map((element, index) => (
           <li className={`case-visual__schematic-part case-visual__schematic-part--${element.status}`} key={element.id}>
             <ElementDetails element={element} index={index} className="case-visual__schematic-card" />
+            {index < elements.length - 1 && <span className="case-visual__schematic-edge" aria-hidden="true">→</span>}
           </li>
         ))}
       </ol>

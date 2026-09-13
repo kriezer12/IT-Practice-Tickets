@@ -4,6 +4,35 @@ import { QUESTIONS } from '../src/data/questions';
 import { CATEGORY_IDS, type PracticeQuestion } from '../src/types';
 
 const cloneQuestion = (question: PracticeQuestion): PracticeQuestion => structuredClone(question);
+const cloneCatalog = (): unknown[] => structuredClone(QUESTIONS);
+const recordAt = (value: unknown): Record<string, unknown> => value as Record<string, unknown>;
+
+type CatalogMutation = (questions: unknown[]) => void;
+
+const malformedNestedShapes: Array<[string, CatalogMutation, string]> = [
+  ['null ticket', (questions) => { recordAt(questions[0]).ticket = null; }, 'Invalid ticket: ad-01.ticket must be an object'],
+  ['missing ticket field', (questions) => { delete recordAt(recordAt(questions[0]).ticket).subject; }, 'Invalid ticket field: ad-01.ticket.subject must be a string'],
+  ['wrong ticket field type', (questions) => { recordAt(recordAt(questions[0]).ticket).subject = 42; }, 'Invalid ticket field: ad-01.ticket.subject must be a string'],
+  ['null choices', (questions) => { recordAt(questions[0]).choices = null; }, 'Invalid choices: ad-01.choices must be an array'],
+  ['null choice', (questions) => { (recordAt(questions[0]).choices as unknown[])[0] = null; }, 'Invalid choice: ad-01.choices[0] must be an object'],
+  ['wrong choice id type', (questions) => { recordAt((recordAt(questions[0]).choices as unknown[])[0]).id = 42; }, 'Invalid choice id: ad-01.choices[0].id must be a string'],
+  ['missing choice label', (questions) => { delete recordAt((recordAt(questions[0]).choices as unknown[])[0]).label; }, 'Invalid choice label: ad-01.choices[0].label must be a string'],
+  ['null evidence', (questions) => { recordAt(questions[0]).evidence = null; }, 'Invalid evidence: ad-01.evidence must be an array'],
+  ['null evidence item', (questions) => { (recordAt(questions[0]).evidence as unknown[])[0] = null; }, 'Invalid evidence item: ad-01.evidence[0] must be an object'],
+  ['wrong evidence status type', (questions) => { recordAt((recordAt(questions[0]).evidence as unknown[])[0]).status = null; }, 'Invalid evidence status: ad-01.Domain controller reachable'],
+  ['missing evidence detail', (questions) => { delete recordAt((recordAt(questions[0]).evidence as unknown[])[0]).detail; }, 'Invalid evidence detail: ad-01.evidence[0].detail must be a string'],
+  ['null visual', (questions) => { recordAt(questions[0]).visual = null; }, 'Invalid visual: ad-01.visual must be an object'],
+  ['wrong visual title type', (questions) => { recordAt(recordAt(questions[0]).visual).title = []; }, 'Invalid visual title: ad-01.visual.title must be a string'],
+  ['null visual elements', (questions) => { recordAt(recordAt(questions[0]).visual).elements = null; }, 'Invalid visual elements: ad-01.visual.elements must be an array'],
+  ['null visual element', (questions) => { (recordAt(recordAt(questions[0]).visual).elements as unknown[])[0] = null; }, 'Invalid visual element: ad-01.visual.elements[0] must be an object'],
+  ['wrong visual evidence reference type', (questions) => { recordAt((recordAt(recordAt(questions[0]).visual).elements as unknown[])[0]).evidenceLabel = 42; }, 'Invalid visual evidence reference: ad-01.visual.elements[0].evidenceLabel must be a string'],
+  ['wrong visual status type', (questions) => { recordAt((recordAt(recordAt(questions[0]).visual).elements as unknown[])[0]).status = null; }, 'Invalid visual element status: ad-01.dc-path'],
+  ['null citations', (questions) => { recordAt(questions[0]).citations = null; }, 'Invalid citations: ad-01.citations must be an array'],
+  ['null citation', (questions) => { (recordAt(questions[0]).citations as unknown[])[0] = null; }, 'Invalid citation: ad-01.citations[0] must be an object'],
+  ['wrong citation publisher type', (questions) => { recordAt((recordAt(questions[0]).citations as unknown[])[0]).publisher = {}; }, 'Invalid citation publisher: ad-01.citations[0].publisher must be a string'],
+  ['wrong citation source type', (questions) => { recordAt((recordAt(questions[0]).citations as unknown[])[0]).sourceType = null; }, 'Invalid citation source type: ad-01.0 must be a string'],
+  ['wrong citation URL type', (questions) => { recordAt((recordAt(questions[0]).citations as unknown[])[0]).url = {}; }, 'Invalid citation URL: ad-01.0 must be a string'],
+];
 
 describe('question catalog', () => {
   it('contains exactly ten ordered questions for every enabled category', () => {
@@ -79,6 +108,23 @@ describe('question catalog', () => {
     const errors = validateCatalog(questions);
 
     expect(errors.some((error) => error.toLowerCase().includes(description.split(' ')[0]))).toBe(true);
+  });
+
+  it.each([
+    ['null catalog', null, 'Catalog must be an array of questions'],
+    ['object catalog', {}, 'Catalog must be an array of questions'],
+    ['null question', [null], 'Invalid question: questions[0] must be an object'],
+  ])('reports %s instead of throwing', (_description, questions, expectedError) => {
+    expect(() => validateCatalog(questions)).not.toThrow();
+    expect(validateCatalog(questions)).toContain(expectedError);
+  });
+
+  it.each(malformedNestedShapes)('reports %s instead of throwing', (_description, mutate, expectedError) => {
+    const questions = cloneCatalog();
+    mutate(questions);
+
+    expect(() => validateCatalog(questions)).not.toThrow();
+    expect(validateCatalog(questions)).toContain(expectedError);
   });
 
   it('rejects a visual that does not account for every evidence item', () => {

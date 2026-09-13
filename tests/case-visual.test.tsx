@@ -40,11 +40,14 @@ describe('case visual modes', () => {
     render(<CaseVisual visual={visualFor('schematic')} />);
 
     expect(screen.getByLabelText('Hardware layout visualization')).toBeTruthy();
+    expect(screen.getByText('First evidence node')).toBeTruthy();
+    expect(screen.getByText('Second evidence node')).toBeTruthy();
     expect(screen.getByText('Third evidence node')).toBeTruthy();
     expect(screen.getByText('Note / inspect')).toBeTruthy();
-    expect(screen.getByText('PORT / INPUT')).toBeTruthy();
-    expect(screen.getByText('DEVICE / BOARD')).toBeTruthy();
-    expect(screen.getByText('PATH / SERVICE')).toBeTruthy();
+    expect(screen.getAllByText('→')).toHaveLength(2);
+    expect(screen.queryByText('PORT / INPUT')).toBeNull();
+    expect(screen.queryByText('DEVICE / BOARD')).toBeNull();
+    expect(screen.queryByText('PATH / SERVICE')).toBeNull();
     expect(screen.queryByLabelText('Directional flow visualization')).toBeNull();
   });
 });

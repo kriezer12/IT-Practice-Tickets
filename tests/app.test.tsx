@@ -45,8 +45,8 @@ describe('guided practice flow', () => {
     expect(screen.getByText('CORRECT ACTION')).toBeTruthy();
     expect(screen.getByText('FIRST CHECK RESULT')).toBeTruthy();
     expect(screen.getByText('Verify the guidance.')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Troubleshoot locked-out user accounts' }).getAttribute('href')).toBe('https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/locked-out-user-accounts');
-    expect(screen.getByText('Unlock the account and immediately reset the password')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Account Lockout and Management Tools' }).getAttribute('href')).toBe('https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/account-lockout-and-management-tool');
+    expect(screen.getByText('Confirm whether a second domain-joined device has the same lockout before changing credentials')).toBeTruthy();
     expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Switch to dark mode' }));
@@ -80,13 +80,13 @@ describe('guided practice flow', () => {
     fireEvent.click(screen.getAllByRole('radio')[0]);
     fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
     expect(screen.getByText(/Not the highest-signal first check/)).toBeTruthy();
-    expect(screen.getByText('Unlock the account and immediately reset the password')).toBeTruthy();
+    expect(screen.getByText('Confirm whether a second domain-joined device has the same lockout before changing credentials')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /Previous/i }));
     fireEvent.click(screen.getAllByRole('radio')[1]);
     fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
 
-    expect(screen.getByText('Unlock the account and immediately reset the password')).toBeTruthy();
+    expect(screen.getByText('Confirm whether a second domain-joined device has the same lockout before changing credentials')).toBeTruthy();
     expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
     expect(screen.getByText(/Not the highest-signal first check/)).toBeTruthy();
     expect(screen.queryByText(/Correct — this is the highest-signal first check/)).toBeNull();

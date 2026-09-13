@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CATEGORIES, getCategoryQuestions, validateCatalog } from '../src/data/catalog';
+import { CATEGORIES, getCategoryQuestions, isReviewedCitationUrl, validateCatalog } from '../src/data/catalog';
 import { QUESTIONS } from '../src/data/questions';
 import { CATEGORY_IDS, type PracticeQuestion } from '../src/types';
 
@@ -39,11 +39,31 @@ describe('question catalog', () => {
     expect(positionCounts).toEqual([10, 10, 10]);
   });
 
+  it('accepts only reviewed canonical citation URLs', () => {
+    const citationUrls = QUESTIONS.flatMap((question) => question.citations.map((citation) => citation.url));
+
+    expect(citationUrls).toHaveLength(30);
+    expect(citationUrls.every((url) => isReviewedCitationUrl(url))).toBe(true);
+  });
+
+  it.each([
+    ['', 'empty citation URL'],
+    ['not-a-url', 'malformed citation URL'],
+    ['http://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top', 'non-HTTPS citation URL'],
+    ['https://learn.microsoft.com/en-us/unreviewed-placeholder', 'unreviewed citation URL'],
+  ])('rejects %s as an %s', (url) => {
+    expect(isReviewedCitationUrl(url)).toBe(false);
+  });
+
   it.each([
     ['blank ticket content', (question: PracticeQuestion) => { question.ticket.subject = ' '; }],
     ['duplicate choice IDs', (question: PracticeQuestion) => { question.choices[1].id = question.choices[0].id; }],
+    ['duplicate choice labels', (question: PracticeQuestion) => { question.choices[1].label = question.choices[0].label; }],
     ['empty choice label', (question: PracticeQuestion) => { question.choices[0].label = ''; }],
+    ['empty evidence', (question: PracticeQuestion) => { question.evidence = []; }],
+    ['invalid evidence status', (question: PracticeQuestion) => { (question.evidence[0] as { status: string }).status = 'unknown'; }],
     ['invalid correct choice', (question: PracticeQuestion) => { question.correctChoiceId = 'missing'; }],
+    ['empty visual elements', (question: PracticeQuestion) => { question.visual.elements = []; }],
     ['missing visual evidence reference', (question: PracticeQuestion) => { question.visual.elements[0].evidenceLabel = 'missing evidence'; }],
     ['missing visual text alternative', (question: PracticeQuestion) => { question.visual.description = ''; }],
     ['missing citation label', (question: PracticeQuestion) => { question.citations[0].label = ''; }],
@@ -62,6 +82,40 @@ describe('question catalog', () => {
     questions[0].visual.elements = questions[0].visual.elements.slice(0, 2);
 
     expect(validateCatalog(questions)).toContain('ad-01 visual must reference every evidence item');
+  });
+
+  it('keeps physical handling behind an explicit safety gate', () => {
+    for (const question of getCategoryQuestions('physical-troubleshooting')) {
+      const content = JSON.stringify(question).toLowerCase();
+
+      expect(content).toMatch(/shut down|power down/);
+      expect(content).toMatch(/disconnect(?:ed)? ac|ac (?:off|disconnected)|de-energize/);
+      expect(content).toMatch(/manufacturer|service guide/);
+      expect(content).toMatch(/live handling|live connection|never .*live|before .*inside|before .*touch/);
+    }
+  });
+
+  it('keeps choices within plausible diagnostic scope', () => {
+    const unrelatedOrDisproportionateChoice = [
+      /monitor resolution/i,
+      /reset .*password/i,
+      /replace .*keyboard/i,
+      /replace .*motherboard/i,
+      /reinstall windows/i,
+      /format .*immediately/i,
+      /delete .*all/i,
+      /domain admin/i,
+      /disable (?:every|all)/i,
+      /replace (?:both|every)/i,
+      /restart every/i,
+      /change .*production ip/i,
+    ];
+
+    for (const question of QUESTIONS) {
+      for (const choice of question.choices) {
+        expect(unrelatedOrDisproportionateChoice.some((pattern) => pattern.test(choice.label))).toBe(false);
+      }
+    }
   });
 
   it('reports duplicate IDs and broken category ordering', () => {

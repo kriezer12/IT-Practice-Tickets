@@ -7,6 +7,44 @@ export const CATEGORIES: CategoryMeta[] = [
   { id: 'physical-troubleshooting', name: 'Physical Troubleshooting', shortName: 'PHYS', eyebrow: 'HARDWARE / SIGNAL', description: 'Practice safe isolation from power and cables to components and airflow.', marker: '03' },
 ];
 
+const REVIEWED_CITATION_URLS = new Set([
+  'https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/cached-domain-logon-information',
+  'https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/account-lockout-and-management-tool',
+  'https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/kerberos-authentication-troubleshooting-guidance',
+  'https://learn.microsoft.com/en-us/windows-hardware/drivers/usbcon/usb-3-0-driver-stack-architecture',
+  'https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/gpresult',
+  'https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig',
+  'https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/nslookup',
+  'https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/active-directory-domain-services',
+  'https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-scope',
+  'https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups',
+  'https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/domain-join-log-analysis',
+  'https://learn.microsoft.com/en-us/windows-server/networking/',
+  'https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top',
+  'https://learn.microsoft.com/en-us/windows/win32/ndf/troubleshooting-wireless-lan-connections',
+  'https://learn.microsoft.com/en-us/windows-server/remote/remote-access/vpn/always-on-vpn/',
+  'https://learn.microsoft.com/en-us/windows-server/storage/disk-management/overview-of-disk-management',
+  'https://learn.microsoft.com/en-us/windows/security/identity-protection/access-control/access-control',
+  'https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/',
+  'https://www.cisco.com/c/en/us/support/docs/lan-switching/inter-vlan-routing/4131-20.html',
+  'https://www.displayport.org/faq/',
+  'https://www.intel.com/content/www/us/en/support/articles/000005597/processors.html',
+  'https://www.intel.com/content/www/us/en/support/articles/000021605/processors.html',
+  'https://www.intel.com/content/www/us/en/support/articles/000058487/processors.html',
+  'https://www.osha.gov/electrical',
+  'https://www.rfc-editor.org/rfc/rfc2131',
+  'https://www.usb.org/usb-charger-pd',
+].map((url) => new URL(url).toString()));
+
+export function isReviewedCitationUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && Boolean(url.hostname) && REVIEWED_CITATION_URLS.has(url.toString());
+  } catch {
+    return false;
+  }
+}
+
 export const getCategoryQuestions = (category: CategoryId): PracticeQuestion[] =>
   QUESTIONS.filter((question) => question.category === category).sort((a, b) => a.order - b.order);
 
@@ -28,18 +66,24 @@ export function validateCatalog(questions: PracticeQuestion[] = QUESTIONS): stri
 
     if (question.choices.length < 3) errors.push(`${question.id} must have at least three choices`);
     const choiceIds = new Set<string>();
+    const choiceLabels = new Set<string>();
     question.choices.forEach((choice) => {
       if (!choice.id.trim()) errors.push(`Blank choice id: ${question.id}`);
       if (choiceIds.has(choice.id)) errors.push(`Duplicate choice id: ${question.id}.${choice.id}`);
       choiceIds.add(choice.id);
       if (!choice.label.trim()) errors.push(`Empty choice label: ${question.id}.${choice.id}`);
+      if (choiceLabels.has(choice.label)) errors.push(`Duplicate choice label: ${question.id}.${choice.label}`);
+      choiceLabels.add(choice.label);
     });
     if (!question.choices.some((choice) => choice.id === question.correctChoiceId)) {
       errors.push(`Invalid correct choice reference: ${question.id}.${question.correctChoiceId}`);
     }
 
+    if (question.evidence.length === 0) errors.push(`Empty evidence: ${question.id}`);
     const evidenceLabels = new Set<string>();
+    const evidenceStatuses = new Set(['pass', 'fail', 'note']);
     question.evidence.forEach((item) => {
+      if (!evidenceStatuses.has(item.status)) errors.push(`Invalid evidence status: ${question.id}.${item.label}`);
       if (!item.label.trim()) errors.push(`Blank evidence label: ${question.id}`);
       if (!item.detail.trim()) errors.push(`Blank evidence detail: ${question.id}.${item.label}`);
       if (evidenceLabels.has(item.label)) errors.push(`Duplicate evidence label: ${question.id}.${item.label}`);
@@ -51,6 +95,7 @@ export function validateCatalog(questions: PracticeQuestion[] = QUESTIONS): stri
     if (!['flow', 'topology', 'schematic'].includes(question.visual.kind)) {
       errors.push(`Invalid visual kind: ${question.id}`);
     }
+    if (question.visual.elements.length === 0) errors.push(`Empty visual elements: ${question.id}`);
     const visualElementIds = new Set<string>();
     const referencedEvidence = new Set<string>();
     question.visual.elements.forEach((element) => {
@@ -82,9 +127,11 @@ export function validateCatalog(questions: PracticeQuestion[] = QUESTIONS): stri
       }
       try {
         const url = new URL(citation.url);
-        if (url.protocol !== 'https:' || !url.hostname) errors.push(`Invalid citation URL: ${question.id}.${index}`);
+        if (url.protocol !== 'https:' || !url.hostname || !isReviewedCitationUrl(citation.url)) {
+          errors.push(`Invalid or unreviewed citation URL: ${question.id}.${index}`);
+        }
       } catch {
-        errors.push(`Invalid citation URL: ${question.id}.${index}`);
+        errors.push(`Invalid or unreviewed citation URL: ${question.id}.${index}`);
       }
     });
   }

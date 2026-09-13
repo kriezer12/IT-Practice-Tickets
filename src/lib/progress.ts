@@ -1,3 +1,4 @@
+import { getCategoryQuestions } from '../data/catalog';
 import { CATEGORY_IDS, type AnswerRecord, type CategoryId, type PracticeSession, type ProgressState } from '../types';
 
 export const PROGRESS_STORAGE_KEY = 'it-skills-practice-progress-v1';
@@ -35,45 +36,86 @@ export function createEmptyProgress(): ProgressState {
       position: 0,
       phase: 'prompt',
       selectedChoiceId: null,
-      revealedChoiceId: null,
     },
   };
   return progress;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function hasCategoryKeys(value: unknown): value is Record<CategoryId, unknown> {
+  if (!isRecord(value)) return false;
+  const keys = Object.keys(value);
+  return keys.length === CATEGORY_IDS.length && CATEGORY_IDS.every((category) => keys.includes(category));
+}
+
+function isCategoryId(value: unknown): value is CategoryId {
+  return typeof value === 'string' && CATEGORY_IDS.includes(value as CategoryId);
+}
+
+function isChoiceId(question: ReturnType<typeof getCategoryQuestions>[number], choiceId: string): boolean {
+  return question.choices.some((choice) => choice.id === choiceId);
+}
+
 function isProgressState(value: unknown): value is ProgressState {
-  if (!value || typeof value !== 'object') return false;
-  const candidate = value as Partial<ProgressState>;
-  if (candidate.version !== 1 || !candidate.completedByCategory || !candidate.positionByCategory || !candidate.scoreByCategory || !candidate.answersByCategory || !candidate.session) return false;
+  if (!isRecord(value) || value.version !== 1) return false;
+  if (!hasCategoryKeys(value.completedByCategory) || !hasCategoryKeys(value.positionByCategory) || !hasCategoryKeys(value.scoreByCategory) || !hasCategoryKeys(value.answersByCategory) || !isRecord(value.session)) return false;
 
-  const session = candidate.session;
-  const validPhase = session.phase === 'prompt' || session.phase === 'evidence' || session.phase === 'complete';
-  const validSessionCategory = session.categoryId === null || CATEGORY_IDS.includes(session.categoryId);
-  if (!validPhase || !validSessionCategory || !Number.isInteger(session.position) || session.position < 0) return false;
+  for (const category of CATEGORY_IDS) {
+    const questions = getCategoryQuestions(category);
+    const completed = value.completedByCategory[category];
+    const position = value.positionByCategory[category];
+    const score = value.scoreByCategory[category];
+    const answers = value.answersByCategory[category];
+
+    if (!Array.isArray(completed) || completed.some((id) => typeof id !== 'string')) return false;
+    if (new Set(completed).size !== completed.length) return false;
+    if (typeof position !== 'number' || !Number.isInteger(position) || position < 0 || position >= questions.length) return false;
+    if (typeof score !== 'number' || !Number.isInteger(score) || score < 0 || score > questions.length) return false;
+    if (!isRecord(answers) || Object.keys(answers).length !== completed.length) return false;
+
+    let calculatedScore = 0;
+    for (const questionId of completed) {
+      const question = questions.find((candidate) => candidate.id === questionId);
+      const answer = answers[questionId];
+      if (!question || !isRecord(answer) || typeof answer.choiceId !== 'string' || typeof answer.correct !== 'boolean') return false;
+      if (!isChoiceId(question, answer.choiceId)) return false;
+      if (answer.correct !== (answer.choiceId === question.correctChoiceId)) return false;
+      calculatedScore += answer.correct ? 1 : 0;
+    }
+
+    for (const questionId of Object.keys(answers)) {
+      if (!completed.includes(questionId)) return false;
+    }
+    if (score !== calculatedScore) return false;
+  }
+
+  const session = value.session;
+  const sessionCategory = session.categoryId;
+  if (sessionCategory !== null && !isCategoryId(sessionCategory)) return false;
+  if (typeof session.position !== 'number' || !Number.isInteger(session.position) || session.position < 0) return false;
+  if (session.phase !== 'prompt' && session.phase !== 'evidence' && session.phase !== 'complete') return false;
   if (session.selectedChoiceId !== null && typeof session.selectedChoiceId !== 'string') return false;
-  if (session.revealedChoiceId !== null && typeof session.revealedChoiceId !== 'string') return false;
 
-  return CATEGORY_IDS.every((category) => {
-    const completed = candidate.completedByCategory?.[category];
-    const position = candidate.positionByCategory?.[category];
-    const score = candidate.scoreByCategory?.[category];
-    const answers = candidate.answersByCategory?.[category];
-    return Array.isArray(completed)
-      && completed.every((id) => typeof id === 'string')
-      && typeof position === 'number'
-      && Number.isInteger(position)
-      && position >= 0
-      && typeof score === 'number'
-      && Number.isInteger(score)
-      && score >= 0
-      && !!answers
-      && typeof answers === 'object'
-      && Object.entries(answers).every(([questionId, answer]) => questionId.length > 0
-        && !!answer
-        && typeof answer === 'object'
-        && typeof answer.choiceId === 'string'
-        && typeof answer.correct === 'boolean');
-  });
+  if (sessionCategory === null) {
+    return session.phase === 'prompt' && session.position === 0 && session.selectedChoiceId === null;
+  }
+
+  const questions = getCategoryQuestions(sessionCategory);
+  const question = questions[session.position];
+  const sessionCompleted = value.completedByCategory[sessionCategory];
+  if (!Array.isArray(sessionCompleted)) return false;
+  if (!question || value.positionByCategory[sessionCategory] !== session.position) return false;
+  if (session.selectedChoiceId !== null && !isChoiceId(question, session.selectedChoiceId)) return false;
+
+  if (session.phase === 'prompt') return true;
+  if (session.phase === 'evidence') {
+    return session.selectedChoiceId !== null && sessionCompleted.includes(question.id);
+  }
+  return session.position === questions.length - 1
+    && sessionCompleted.length === questions.length;
 }
 
 function browserStorage(): ProgressStorage | undefined {
@@ -140,7 +182,7 @@ export function setSession(progress: ProgressState, session: PracticeSession): P
 
 export function resetCategoryProgress(progress: ProgressState, category: CategoryId): ProgressState {
   const session = progress.session.categoryId === category
-    ? { ...progress.session, position: 0, phase: 'prompt' as const, selectedChoiceId: null, revealedChoiceId: null }
+    ? { ...progress.session, position: 0, phase: 'prompt' as const, selectedChoiceId: null }
     : progress.session;
 
   return {

@@ -1,32 +1,48 @@
-import type { CategoryMeta, PracticeQuestion } from '../types';
+import { useEffect, useRef } from 'react';
+import type { CategoryMeta, PracticePhase, PracticeQuestion } from '../types';
 import { AnswerPanel } from './AnswerPanel';
 import { CheckpointPanel } from './CheckpointPanel';
 import { EvidencePanel } from './EvidencePanel';
 import { ThemeToggle } from './ThemeToggle';
 import { TicketPanel } from './TicketPanel';
 
-type PracticeViewProps = {
-  category: CategoryMeta;
-  question: PracticeQuestion;
-  position: number;
-  total: number;
-  phase: 'prompt' | 'evidence';
+type PracticeViewState = {
+  phase: Exclude<PracticePhase, 'complete'>;
   selectedChoice: string | null;
   correct: boolean;
+};
+
+type PracticeViewActions = {
   onBack: () => void;
   onPrevious: () => void;
   onNext: () => void;
   onSelectChoice: (choiceId: string) => void;
   onSubmit: () => void;
   onReset: () => void;
-  theme: 'light' | 'dark';
   onToggleTheme: () => void;
 };
 
-export function PracticeView({ category, question, position, total, phase, selectedChoice, correct, onBack, onPrevious, onNext, onSelectChoice, onSubmit, onReset, theme, onToggleTheme }: PracticeViewProps) {
+type PracticeViewProps = {
+  category: CategoryMeta;
+  question: PracticeQuestion;
+  navigation: { position: number; total: number };
+  state: PracticeViewState;
+  actions: PracticeViewActions;
+  theme: 'light' | 'dark';
+};
+
+export function PracticeView({ category, question, navigation, state, actions, theme }: PracticeViewProps) {
+  const { position, total } = navigation;
+  const { phase, selectedChoice, correct } = state;
+  const { onBack, onPrevious, onNext, onSelectChoice, onSubmit, onReset, onToggleTheme } = actions;
   const progress = ((position + 1) / total) * 100;
   const selectedAction = question.choices.find((choice) => choice.id === selectedChoice)?.label ?? 'No action selected';
   const correctAction = question.choices.find((choice) => choice.id === question.correctChoiceId)?.label ?? 'Unavailable';
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, [phase, position]);
 
   return (
     <div className="practice-page">
@@ -43,7 +59,7 @@ export function PracticeView({ category, question, position, total, phase, selec
         <div className="practice-layout">
           <TicketPanel question={question} />
           <div className="practice-action">
-            {phase === 'prompt' ? <CheckpointPanel question={question} selectedChoice={selectedChoice} onSelect={onSelectChoice} onSubmit={onSubmit} /> : <><EvidencePanel question={question} /><AnswerPanel correct={correct} selectedAction={selectedAction} correctAction={correctAction} explanation={question.explanation} takeaway={question.takeaway} onNext={onNext} isLast={position === total - 1} /></>}
+            {phase === 'prompt' ? <CheckpointPanel question={question} selectedChoice={selectedChoice} onSelect={onSelectChoice} onSubmit={onSubmit} headingRef={headingRef} /> : <><EvidencePanel question={question} headingRef={headingRef} /><AnswerPanel correct={correct} selectedAction={selectedAction} correctAction={correctAction} explanation={question.explanation} takeaway={question.takeaway} onNext={onNext} isLast={position === total - 1} /></>}
           </div>
         </div>
 

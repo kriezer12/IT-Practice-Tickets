@@ -1,3 +1,4 @@
+import type { RefObject } from 'react';
 import type { PracticeQuestion } from '../types';
 
 type CheckpointPanelProps = {
@@ -5,13 +6,14 @@ type CheckpointPanelProps = {
   selectedChoice: string | null;
   onSelect: (choiceId: string) => void;
   onSubmit: () => void;
+  headingRef: RefObject<HTMLHeadingElement | null>;
 };
 
-export function CheckpointPanel({ question, selectedChoice, onSelect, onSubmit }: CheckpointPanelProps) {
+export function CheckpointPanel({ question, selectedChoice, onSelect, onSubmit, headingRef }: CheckpointPanelProps) {
   return (
     <section className="checkpoint-panel" aria-labelledby="checkpoint-heading">
       <div className="checkpoint-panel__label"><span className="question-icon" aria-hidden="true">?</span><p className="eyebrow">FIRST CHECK</p></div>
-      <h2 id="checkpoint-heading">{question.prompt}</h2>
+      <h2 className="focus-target" id="checkpoint-heading" ref={headingRef} tabIndex={-1}>{question.prompt}</h2>
       <p className="checkpoint-hint">Read the ticket. Select the smallest useful action to narrow the fault.</p>
       <fieldset className="choice-list">
         <legend className="sr-only">Choose your first check</legend>

@@ -20,7 +20,6 @@ export type PracticeSession = {
   position: number;
   phase: PracticePhase;
   selectedChoiceId: string | null;
-  revealedChoiceId: string | null;
 };
 
 export type PracticeQuestion = {

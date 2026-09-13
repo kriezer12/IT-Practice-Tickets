@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
+import '../src/styles.css';
 
 function openTrack(name: string) {
   fireEvent.click(screen.getByRole('button', { name: new RegExp(name) }));
@@ -29,6 +30,9 @@ describe('guided practice flow', () => {
     fireEvent.click(revealButton);
 
     expect(screen.getByText('WHAT YOU FIND')).toBeTruthy();
+    expect(screen.getByText('Pass')).toBeTruthy();
+    expect(screen.getByText('Fail')).toBeTruthy();
+    expect(screen.getByText('Note')).toBeTruthy();
     expect(screen.getByText('SELECTED ACTION')).toBeTruthy();
     expect(screen.getByText('CORRECT ACTION')).toBeTruthy();
     expect(screen.getByText('FIRST CHECK RESULT')).toBeTruthy();
@@ -42,10 +46,13 @@ describe('guided practice flow', () => {
 
     fireEvent.click(screen.getAllByRole('radio')[0]);
     fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
+    const evidenceHeading = screen.getByRole('heading', { name: 'The signal gets clearer.' });
+    expect(document.activeElement).toBe(evidenceHeading);
     fireEvent.click(screen.getByRole('button', { name: /Next case/i }));
 
     expect(screen.getByText('Internal site opens by IP but not by name')).toBeTruthy();
     expect(screen.getByText('Networking')).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'What is the most useful first test?' }));
 
     fireEvent.click(screen.getByRole('button', { name: /Previous/i }));
     expect(screen.getByText('One laptop has no internet access')).toBeTruthy();
@@ -78,5 +85,39 @@ describe('guided practice flow', () => {
     expect(screen.getByText('One laptop has no internet access')).toBeTruthy();
     expect(screen.getByText('WHAT YOU FIND')).toBeTruthy();
     expect(screen.getByText('SELECTED ACTION')).toBeTruthy();
+  });
+
+  it('uses readable answer tokens in both light and dark themes', () => {
+    render(<App />);
+    openTrack('Active Directory');
+    fireEvent.click(screen.getAllByRole('radio')[0]);
+    fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
+
+    expect(document.documentElement.dataset.theme).toBe('light');
+    expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to dark mode' }));
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
+  });
+
+  it('offers a confirmed category-scoped retry from the completion view', () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(<App />);
+    openTrack('Physical Troubleshooting');
+
+    for (let index = 0; index < 10; index += 1) {
+      fireEvent.click(screen.getAllByRole('radio')[0]);
+      fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
+      fireEvent.click(screen.getByRole('button', { name: index === 9 ? /See your category result/i : /Next case/i }));
+    }
+
+    fireEvent.click(screen.getByRole('button', { name: /Retry this category/i }));
+
+    expect(confirm).toHaveBeenCalledWith('Reset this track’s local progress?');
+    expect(screen.getByText('PC turns on, but no display')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'What would you check first?' })).toBeTruthy();
+    confirm.mockRestore();
   });
 });

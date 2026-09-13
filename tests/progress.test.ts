@@ -3,6 +3,7 @@ import {
   createEmptyProgress,
   loadProgress,
   markAnswered,
+  PROGRESS_STORAGE_KEY,
   resetCategoryProgress,
   saveProgress,
   setCategoryPosition,
@@ -44,17 +45,53 @@ describe('local progress store', () => {
   it('round-trips the active session through the same injectable boundary', () => {
     const storage = new MemoryStorage();
     const initial = createEmptyProgress();
+    const answered = markAnswered(initial, 'networking', 'net-03', true, 'a');
+    const positioned = setCategoryPosition(answered, 'networking', 2);
     const session = {
       categoryId: 'networking' as const,
       position: 2,
       phase: 'evidence' as const,
       selectedChoiceId: 'a',
-      revealedChoiceId: 'a',
     };
 
-    saveProgress(storage, { ...initial, session });
+    saveProgress(storage, { ...positioned, session });
 
     expect(loadProgress(storage).session).toEqual(session);
+  });
+
+  it.each([
+    ['an unknown completed question', (progress: ReturnType<typeof createEmptyProgress>) => {
+      progress.completedByCategory.networking = ['net-404'];
+      progress.answersByCategory.networking = { 'net-404': { choiceId: 'a', correct: true } };
+    }],
+    ['duplicate completed questions', (progress: ReturnType<typeof createEmptyProgress>) => {
+      progress.completedByCategory.networking = ['net-01', 'net-01'];
+      progress.answersByCategory.networking = { 'net-01': { choiceId: 'a', correct: true } };
+      progress.scoreByCategory.networking = 1;
+    }],
+    ['an invalid choice reference', (progress: ReturnType<typeof createEmptyProgress>) => {
+      progress.completedByCategory.networking = ['net-01'];
+      progress.answersByCategory.networking = { 'net-01': { choiceId: 'z', correct: true } };
+      progress.scoreByCategory.networking = 1;
+    }],
+    ['a fabricated score', (progress: ReturnType<typeof createEmptyProgress>) => {
+      progress.completedByCategory.networking = ['net-01'];
+      progress.answersByCategory.networking = { 'net-01': { choiceId: 'a', correct: true } };
+      progress.scoreByCategory.networking = 2;
+    }],
+    ['an out-of-range position', (progress: ReturnType<typeof createEmptyProgress>) => {
+      progress.positionByCategory.networking = 10;
+    }],
+    ['an incomplete complete phase', (progress: ReturnType<typeof createEmptyProgress>) => {
+      progress.session = { categoryId: 'networking', position: 9, phase: 'complete', selectedChoiceId: null };
+    }],
+  ])('rejects %s instead of loading it', (_description, mutate) => {
+    const storage = new MemoryStorage();
+    const invalid = createEmptyProgress();
+    mutate(invalid);
+    storage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(invalid));
+
+    expect(loadProgress(storage)).toEqual(createEmptyProgress());
   });
 
   it('falls back safely when persisted state is malformed', () => {

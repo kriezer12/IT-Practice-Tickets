@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
 import { UnavailableCase } from '../src/components/UnavailableCase';
 import { CompletionView } from '../src/components/CompletionView';
-import { CATEGORIES } from '../src/data/catalog';
+import { CATEGORIES, getCategoryQuestions } from '../src/data/catalog';
 import '../src/styles.css';
 
 function openTrack(name: string) {
@@ -24,6 +24,8 @@ describe('guided practice flow', () => {
 
     expect(screen.getByText('User is locked out after repeated sign-ins')).toBeTruthy();
     expect(screen.queryByText('WHAT YOU FIND')).toBeNull();
+    expect(screen.queryByText('CASE EVIDENCE MAP')).toBeNull();
+    expect(screen.queryByText('Verify the guidance.')).toBeNull();
 
     const revealButton = screen.getByRole('button', { name: /Reveal what you find/i });
     expect(revealButton).toHaveProperty('disabled', true);
@@ -33,12 +35,17 @@ describe('guided practice flow', () => {
     fireEvent.click(revealButton);
 
     expect(screen.getByText('WHAT YOU FIND')).toBeTruthy();
+    expect(screen.getByText('CASE EVIDENCE MAP')).toBeTruthy();
+    expect(screen.getByText('Lockout chain / client to directory')).toBeTruthy();
+    expect(screen.getByText('Workstation → DC')).toBeTruthy();
     expect(screen.getByText('Pass')).toBeTruthy();
     expect(screen.getByText('Fail')).toBeTruthy();
     expect(screen.getByText('Note')).toBeTruthy();
     expect(screen.getByText('SELECTED ACTION')).toBeTruthy();
     expect(screen.getByText('CORRECT ACTION')).toBeTruthy();
     expect(screen.getByText('FIRST CHECK RESULT')).toBeTruthy();
+    expect(screen.getByText('Verify the guidance.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Troubleshoot locked-out user accounts' }).getAttribute('href')).toBe('https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/locked-out-user-accounts');
     expect(screen.getByText('Unlock the account and immediately reset the password')).toBeTruthy();
     expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
 
@@ -106,9 +113,11 @@ describe('guided practice flow', () => {
   it('preserves completed progress after reviewing and reloading a category', () => {
     const firstRender = render(<App />);
     openTrack('Physical Troubleshooting');
+    const physicalQuestions = getCategoryQuestions('physical-troubleshooting');
 
     for (let index = 0; index < 10; index += 1) {
-      fireEvent.click(screen.getAllByRole('radio')[0]);
+      const correctChoiceIndex = physicalQuestions[index].choices.findIndex((choice) => choice.id === physicalQuestions[index].correctChoiceId);
+      fireEvent.click(screen.getAllByRole('radio')[correctChoiceIndex]);
       fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
       fireEvent.click(screen.getByRole('button', { name: index === 9 ? /See your category result/i : /Next case/i }));
     }
@@ -252,7 +261,7 @@ describe('guided practice flow', () => {
 
     expect(confirm).toHaveBeenCalledWith('Reset this track’s local progress?');
     expect(screen.getByText('PC turns on, but no display')).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'What would you check first?' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'What would you verify first?' })).toBeTruthy();
     confirm.mockRestore();
   });
 

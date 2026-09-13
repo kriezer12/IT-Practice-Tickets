@@ -8,6 +8,33 @@ export type CategoryId = (typeof CATEGORY_IDS)[number];
 
 export type EvidenceStatus = 'pass' | 'fail' | 'note';
 
+export type PracticeVisualKind = 'flow' | 'topology' | 'schematic';
+
+export type PracticeVisualElement = {
+  id: string;
+  label: string;
+  detail: string;
+  evidenceLabel: string;
+  status: EvidenceStatus;
+};
+
+export type PracticeVisual = {
+  kind: PracticeVisualKind;
+  title: string;
+  description: string;
+  elements: PracticeVisualElement[];
+};
+
+export type CitationSourceType = 'official' | 'standard' | 'manufacturer';
+
+export type PracticeCitation = {
+  label: string;
+  publisher: string;
+  url: string;
+  claim: string;
+  sourceType: CitationSourceType;
+};
+
 export type PracticePhase = 'prompt' | 'evidence' | 'complete';
 
 export type AnswerRecord = {
@@ -37,6 +64,8 @@ export type PracticeQuestion = {
   choices: Array<{ id: string; label: string }>;
   correctChoiceId: string;
   evidence: Array<{ status: EvidenceStatus; label: string; detail: string }>;
+  visual: PracticeVisual;
+  citations: PracticeCitation[];
   explanation: string;
   takeaway: string;
 };

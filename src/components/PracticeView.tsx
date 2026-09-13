@@ -62,7 +62,7 @@ export function PracticeView({ category, question, navigation, state, actions, t
         <div className="practice-layout">
           <TicketPanel question={question} />
           <div className="practice-action">
-            {phase === 'prompt' ? <CheckpointPanel question={question} selectedChoice={selectedChoice} onSelect={onSelectChoice} onSubmit={onSubmit} headingRef={headingRef} /> : <><EvidencePanel question={question} headingRef={headingRef} /><AnswerPanel correct={correct} selectedAction={selectedAction} correctAction={correctAction} explanation={question.explanation} takeaway={question.takeaway} onNext={onNext} isLast={position === total - 1} /></>}
+            {phase === 'prompt' ? <CheckpointPanel question={question} selectedChoice={selectedChoice} onSelect={onSelectChoice} onSubmit={onSubmit} headingRef={headingRef} /> : <><EvidencePanel question={question} headingRef={headingRef} /><AnswerPanel correct={correct} selectedAction={selectedAction} correctAction={correctAction} explanation={question.explanation} takeaway={question.takeaway} citations={question.citations} onNext={onNext} isLast={position === total - 1} /></>}
           </div>
         </div>
 

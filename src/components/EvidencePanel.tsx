@@ -1,5 +1,6 @@
 import type { RefObject } from 'react';
 import type { PracticeQuestion } from '../types';
+import { CaseVisual } from './CaseVisual';
 
 type EvidencePanelProps = { question: PracticeQuestion; headingRef: RefObject<HTMLHeadingElement | null> };
 
@@ -18,6 +19,7 @@ export function EvidencePanel({ question, headingRef }: EvidencePanelProps) {
           </div>
         ))}
       </div>
+      <CaseVisual visual={question.visual} />
     </section>
   );
 }

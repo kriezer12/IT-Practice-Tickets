@@ -255,7 +255,7 @@ export const QUESTIONS: PracticeQuestion[] = [
       { id: 'vlan-port', label: 'Front desk − TCP 9100', detail: 'The front-desk VLAN cannot cross the network path to the printer service port.', evidenceLabel: 'Network path', status: 'fail' },
       { id: 'subnet-scope', label: 'One subnet succeeds', detail: 'Different outcomes by subnet point toward routing or access rules, not toner or a queue rename.', evidenceLabel: 'Scope', status: 'note' },
     ]),
-    citations: [createCitation('Inter-VLAN routing', 'Cisco', 'https://www.cisco.com/c/en/us/support/docs/lan-switching/inter-vlan-routing/4131-20.html', 'Inter-VLAN communication depends on a routed gateway path and access policy, so compare the successful and failing subnet paths.')],
+    citations: [createCitation('Inter-VLAN routing', 'Cisco', 'https://www.cisco.com/c/en/us/support/docs/lan-switching/inter-vlan-routing/41260-189.html', 'Inter-VLAN communication depends on a routed gateway path and access policy, so compare the successful and failing subnet paths.')],
     explanation: 'Subnet-specific reachability points to routing or filtering between VLANs. Test the path and required print ports from the affected subnet before changing printer hardware.',
     takeaway: 'When one subnet works and another fails, compare the network path and policy between them.',
   }),

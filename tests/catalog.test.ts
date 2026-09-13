@@ -51,6 +51,7 @@ describe('question catalog', () => {
     ['not-a-url', 'malformed citation URL'],
     ['http://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top', 'non-HTTPS citation URL'],
     ['https://learn.microsoft.com/en-us/unreviewed-placeholder', 'unreviewed citation URL'],
+    ['https://www.cisco.com/c/en/us/support/docs/lan-switching/inter-vlan-routing/4131-20.html', 'retired Cisco citation URL'],
   ])('rejects %s as an %s', (url) => {
     expect(isReviewedCitationUrl(url)).toBe(false);
   });

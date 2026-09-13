@@ -26,7 +26,7 @@ const REVIEWED_CITATION_URLS = new Set([
   'https://learn.microsoft.com/en-us/windows-server/storage/disk-management/overview-of-disk-management',
   'https://learn.microsoft.com/en-us/windows/security/identity-protection/access-control/access-control',
   'https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/',
-  'https://www.cisco.com/c/en/us/support/docs/lan-switching/inter-vlan-routing/4131-20.html',
+  'https://www.cisco.com/c/en/us/support/docs/lan-switching/inter-vlan-routing/41260-189.html',
   'https://www.displayport.org/faq/',
   'https://www.intel.com/content/www/us/en/support/articles/000005597/processors.html',
   'https://www.intel.com/content/www/us/en/support/articles/000021605/processors.html',

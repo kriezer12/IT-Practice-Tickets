@@ -1,0 +1,234 @@
+import { useEffect, useState } from 'react';
+import { CATEGORIES, getCategoryQuestions } from './data/catalog';
+import { CompletionView } from './components/CompletionView';
+import { Library } from './components/Library';
+import { PracticeView } from './components/PracticeView';
+import { loadProgress, markAnswered, resetCategoryProgress, saveProgress, setCategoryPosition, setSession } from './lib/progress';
+import type { CategoryId, PracticePhase, PracticeSession, ProgressState } from './types';
+
+type Theme = 'light' | 'dark';
+type ActivePhase = Exclude<PracticePhase, 'complete'>;
+
+const THEME_STORAGE_KEY = 'it-skills-practice-theme';
+
+function initialTheme(): Theme {
+  if (typeof window === 'undefined') return 'light';
+  try {
+    return window.localStorage.getItem(THEME_STORAGE_KEY) === 'dark' ? 'dark' : 'light';
+  } catch {
+    return 'light';
+  }
+}
+
+type InitialAppState = {
+  progress: ProgressState;
+  categoryId: CategoryId | null;
+  position: number;
+  phase: ActivePhase;
+  selectedChoice: string | null;
+  showCompletion: boolean;
+};
+
+function initialAppState(): InitialAppState {
+  const progress = loadProgress();
+  const session = progress.session;
+  const categoryId = session.categoryId;
+
+  if (!categoryId) {
+    return { progress, categoryId: null, position: 0, phase: 'prompt', selectedChoice: null, showCompletion: false };
+  }
+
+  const lastPosition = Math.max(0, getCategoryQuestions(categoryId).length - 1);
+  const position = Math.min(session.position, lastPosition);
+  const phase: ActivePhase = session.phase === 'evidence' ? 'evidence' : 'prompt';
+
+  return {
+    progress,
+    categoryId,
+    position,
+    phase,
+    selectedChoice: session.selectedChoiceId,
+    showCompletion: session.phase === 'complete',
+  };
+}
+
+export default function App() {
+  const [initialState] = useState(initialAppState);
+  const [progress, setProgress] = useState<ProgressState>(initialState.progress);
+  const [theme, setTheme] = useState<Theme>(initialTheme);
+  const [categoryId, setCategoryId] = useState<CategoryId | null>(initialState.categoryId);
+  const [position, setPosition] = useState(initialState.position);
+  const [phase, setPhase] = useState<ActivePhase>(initialState.phase);
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(initialState.selectedChoice);
+  const [showCompletion, setShowCompletion] = useState(initialState.showCompletion);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // A blocked theme preference must not block the practice loop.
+    }
+  }, [theme]);
+
+  const activeCategory = categoryId ? CATEGORIES.find((category) => category.id === categoryId) : undefined;
+  const activeQuestions = categoryId ? getCategoryQuestions(categoryId) : [];
+  const currentQuestion = activeQuestions[position];
+
+  const persistProgress = (next: ProgressState) => {
+    setProgress(next);
+    saveProgress(undefined, next);
+  };
+
+  const selectCategory = (nextCategory: CategoryId) => {
+    const questions = getCategoryQuestions(nextCategory);
+    const savedPosition = progress.positionByCategory[nextCategory] ?? 0;
+    const savedSession = progress.session.categoryId === nextCategory ? progress.session : undefined;
+    const nextPosition = Math.min(savedSession?.position ?? savedPosition, Math.max(0, questions.length - 1));
+    const categoryComplete = progress.completedByCategory[nextCategory].length === questions.length;
+    const nextPhase: PracticePhase = savedSession?.phase === 'complete' || (!savedSession && categoryComplete)
+      ? 'complete'
+      : savedSession?.phase === 'evidence' ? 'evidence' : 'prompt';
+    const nextSession: PracticeSession = {
+      categoryId: nextCategory,
+      position: nextPosition,
+      phase: nextPhase,
+      selectedChoiceId: savedSession?.selectedChoiceId ?? null,
+      revealedChoiceId: savedSession?.revealedChoiceId ?? null,
+    };
+
+    setCategoryId(nextCategory);
+    setPosition(nextPosition);
+    setPhase(nextPhase === 'evidence' ? 'evidence' : 'prompt');
+    setSelectedChoice(nextSession.selectedChoiceId);
+    setShowCompletion(nextPhase === 'complete');
+    persistProgress(setSession(progress, nextSession));
+  };
+
+  const returnToLibrary = () => {
+    persistProgress(setSession(progress, {
+      categoryId: null,
+      position: 0,
+      phase: 'prompt',
+      selectedChoiceId: null,
+      revealedChoiceId: null,
+    }));
+    setCategoryId(null);
+    setShowCompletion(false);
+    setSelectedChoice(null);
+  };
+
+  const selectChoice = (choiceId: string) => {
+    setSelectedChoice(choiceId);
+    if (!categoryId) return;
+    persistProgress(setSession(progress, {
+      categoryId,
+      position,
+      phase: 'prompt',
+      selectedChoiceId: choiceId,
+      revealedChoiceId: null,
+    }));
+  };
+
+  const submitChoice = () => {
+    if (!currentQuestion || !selectedChoice) return;
+    const correct = selectedChoice === currentQuestion.correctChoiceId;
+    const answered = markAnswered(progress, currentQuestion.category, currentQuestion.id, correct, selectedChoice);
+    persistProgress(setSession(answered, {
+      categoryId: currentQuestion.category,
+      position,
+      phase: 'evidence',
+      selectedChoiceId: selectedChoice,
+      revealedChoiceId: selectedChoice,
+    }));
+    setPhase('evidence');
+  };
+
+  const goNext = () => {
+    if (!categoryId || !currentQuestion) return;
+    if (position === activeQuestions.length - 1) {
+      if (progress.completedByCategory[categoryId].length < activeQuestions.length) return;
+      persistProgress(setSession(progress, {
+        categoryId,
+        position,
+        phase: 'complete',
+        selectedChoiceId: selectedChoice,
+        revealedChoiceId: selectedChoice,
+      }));
+      setShowCompletion(true);
+      return;
+    }
+    const nextPosition = position + 1;
+    const positioned = setCategoryPosition(progress, categoryId, nextPosition);
+    persistProgress(setSession(positioned, {
+      categoryId,
+      position: nextPosition,
+      phase: 'prompt',
+      selectedChoiceId: null,
+      revealedChoiceId: null,
+    }));
+    setPosition(nextPosition);
+    setPhase('prompt');
+    setSelectedChoice(null);
+  };
+
+  const goPrevious = () => {
+    if (phase === 'evidence') {
+      if (categoryId) {
+        persistProgress(setSession(progress, {
+          categoryId,
+          position,
+          phase: 'prompt',
+          selectedChoiceId: selectedChoice,
+          revealedChoiceId: null,
+        }));
+      }
+      setPhase('prompt');
+      return;
+    }
+    if (!categoryId || position === 0) return;
+    const nextPosition = position - 1;
+    const positioned = setCategoryPosition(progress, categoryId, nextPosition);
+    persistProgress(setSession(positioned, {
+      categoryId,
+      position: nextPosition,
+      phase: 'prompt',
+      selectedChoiceId: null,
+      revealedChoiceId: null,
+    }));
+    setPosition(nextPosition);
+    setSelectedChoice(null);
+  };
+
+  const resetTrack = () => {
+    if (!categoryId || !window.confirm('Reset this track’s local progress?')) return;
+    persistProgress(resetCategoryProgress(progress, categoryId));
+    setPosition(0);
+    setPhase('prompt');
+    setSelectedChoice(null);
+    setShowCompletion(false);
+  };
+
+  const reviewCategory = () => {
+    if (!categoryId) return;
+    persistProgress(setSession(progress, {
+      categoryId,
+      position: 0,
+      phase: 'prompt',
+      selectedChoiceId: null,
+      revealedChoiceId: null,
+    }));
+    setPosition(0);
+    setPhase('prompt');
+    setSelectedChoice(null);
+    setShowCompletion(false);
+  };
+
+  const toggleTheme = () => setTheme((current) => current === 'light' ? 'dark' : 'light');
+
+  if (!categoryId) return <Library categories={CATEGORIES} progress={progress} onSelect={selectCategory} theme={theme} onToggleTheme={toggleTheme} />;
+  if (showCompletion && activeCategory) return <CompletionView category={activeCategory} score={progress.scoreByCategory[categoryId]} onReview={reviewCategory} onLibrary={returnToLibrary} />;
+  if (!activeCategory || !currentQuestion) return <Library categories={CATEGORIES} progress={progress} onSelect={selectCategory} theme={theme} onToggleTheme={toggleTheme} />;
+
+  return <PracticeView category={activeCategory} question={currentQuestion} position={position} total={activeQuestions.length} phase={phase} selectedChoice={selectedChoice} correct={selectedChoice === currentQuestion.correctChoiceId} onBack={returnToLibrary} onPrevious={goPrevious} onNext={goNext} onSelectChoice={selectChoice} onSubmit={submitChoice} onReset={resetTrack} theme={theme} onToggleTheme={toggleTheme} />;
+}

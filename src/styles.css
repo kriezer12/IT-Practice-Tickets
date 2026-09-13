@@ -13,12 +13,13 @@
   --card: #ffffff;
   --ink: #1a1c1d;
   --ink-soft: #444748;
-  --ink-muted: #747878;
+  --ink-muted: #5f6363;
   --line: #d4d4d8;
   --line-strong: #a1a1aa;
   --inverse: #101011;
   --inverse-soft: #27272a;
   --inverse-ink: #f4f4f5;
+  --ticket-muted: #a1a1aa;
   --answer-surface: #101011;
   --answer-soft: #27272a;
   --answer-ink: #f4f4f5;
@@ -45,6 +46,7 @@
   --inverse: #f4f4f5;
   --inverse-soft: #e4e4e7;
   --inverse-ink: #111113;
+  --ticket-muted: #52525b;
   --answer-surface: #f4f4f5;
   --answer-soft: #e4e4e7;
   --answer-ink: #111113;
@@ -78,6 +80,9 @@ a { color: inherit; }
 .icon-button { display: inline-flex; align-items: center; gap: 8px; border: 0; background: transparent; color: var(--ink-soft); min-height: 44px; padding: 10px 0; font: 500 11px/1 'Geist Mono', monospace; touch-action: manipulation; }
 .icon-button > span:first-child { font-size: 18px; line-height: .75; }
 .icon-button:hover, .icon-button:focus-visible { color: var(--ink); }
+
+.skip-link { position: fixed; top: 12px; left: 16px; z-index: 10; padding: 12px 16px; color: var(--inverse-ink); background: var(--inverse); font: 600 12px/1 'Geist Mono', monospace; text-decoration: none; transform: translateY(-180%); transition: transform 150ms ease; }
+.skip-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; transform: translateY(0); }
 
 .hero-block { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 48px; padding: 112px 0 122px; border-bottom: 1px solid var(--line); }
 .eyebrow { margin: 0; color: var(--ink-muted); font: 500 10px/1.2 'Geist Mono', monospace; letter-spacing: .17em; text-transform: uppercase; }
@@ -152,8 +157,8 @@ h1 em, .completion-page h1 em { font-style: normal; color: var(--ink-muted); }
 .ticket-icon { display: grid; width: 28px; height: 28px; place-items: center; border: 1px solid currentColor; border-radius: 7px; font-size: 18px; transform: rotate(-10deg); }
 .ticket-panel__title strong, .ticket-panel__title small { display: block; }
 .ticket-panel__title strong { font-size: 11px; line-height: 1.1; letter-spacing: .12em; }
-.ticket-panel__title small { margin-top: 5px; color: #a1a1aa; font: 10px/1 'Geist Mono', monospace; letter-spacing: .12em; }
-.ticket-priority { color: #a1a1aa; }
+.ticket-panel__title small { margin-top: 5px; color: var(--ticket-muted); font: 10px/1 'Geist Mono', monospace; letter-spacing: .12em; }
+.ticket-priority { color: var(--ticket-muted); }
 .ticket-panel__subject { padding: 34px 26px 28px; }
 .ticket-panel__subject h2 { margin: 12px 0 0; font-size: 29px; line-height: 1.05; letter-spacing: -.045em; font-weight: 600; }
 .ticket-facts { margin: 0; border-top: 1px solid var(--line); }
@@ -232,6 +237,7 @@ h1 em, .completion-page h1 em { font-style: normal; color: var(--ink-muted); }
 .completion-page h1 { margin: 0 0 24px; font-size: clamp(52px, 8vw, 92px); line-height: .9; letter-spacing: -.07em; font-weight: 500; }
 .completion-copy { max-width: 480px; margin-bottom: 30px; color: var(--ink-soft); font-size: 17px; line-height: 1.5; }
 .completion-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.unavailable-page { display: flex; flex-direction: column; justify-content: center; }
 
 .focus-target { scroll-margin-top: 24px; }
 .focus-target:focus { outline: 2px solid var(--ink); outline-offset: 6px; }

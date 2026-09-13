@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { CategoryMeta, CategoryId, ProgressState } from '../types';
 import { getCategoryQuestions } from '../data/catalog';
 import { ThemeToggle } from './ThemeToggle';
@@ -11,11 +12,18 @@ type LibraryProps = {
 };
 
 export function Library({ categories, progress, onSelect, theme, onToggleTheme }: LibraryProps) {
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
+
   const totalCompleted = categories.reduce((total, category) => total + progress.completedByCategory[category.id].length, 0);
   const totalQuestions = categories.reduce((total, category) => total + getCategoryQuestions(category.id).length, 0);
 
   return (
     <div className="page-shell">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
       <header className="site-header">
         <a className="brand" href="/" aria-label="IT Support Lab home">
           <span className="brand__mark" aria-hidden="true">↗</span>
@@ -27,7 +35,7 @@ export function Library({ categories, progress, onSelect, theme, onToggleTheme }
         </div>
       </header>
 
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <section className="hero-block">
           <div className="hero-copy">
             <p className="eyebrow">FIELD PRACTICE / 2026.09</p>
@@ -44,7 +52,7 @@ export function Library({ categories, progress, onSelect, theme, onToggleTheme }
 
         <section className="library-section" aria-labelledby="tracks-heading">
           <div className="section-heading">
-            <div><p className="eyebrow">CHOOSE A TRACK</p><h2 id="tracks-heading">Practice library</h2></div>
+            <div><p className="eyebrow">CHOOSE A TRACK</p><h2 className="focus-target" id="tracks-heading" ref={headingRef} tabIndex={-1}>Practice library</h2></div>
             <span className="section-count">{String(categories.length).padStart(2, '0')} TRACKS / {String(totalQuestions).padStart(2, '0')} CASES</span>
           </div>
           <div className="category-grid">

@@ -1,36 +1,22 @@
-import { getCategoryQuestions } from '../data/catalog';
-import { CATEGORY_IDS, type AnswerRecord, type CategoryId, type PracticeSession, type ProgressState } from '../types';
+import { CATEGORIES, getCategoryQuestions } from '../data/catalog';
+import { CATEGORY_IDS, type CategoryId, type PracticeSession, type ProgressState } from '../types';
 
 export const PROGRESS_STORAGE_KEY = 'it-skills-practice-progress-v1';
 export type ProgressStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
+function createCategoryMap<T>(factory: (category: CategoryId) => T): Record<CategoryId, T> {
+  const map = {} as Record<CategoryId, T>;
+  for (const category of CATEGORIES) map[category.id] = factory(category.id);
+  return map;
+}
+
 export function createEmptyProgress(): ProgressState {
-  const completedByCategory: Record<CategoryId, string[]> = {
-    'active-directory': [],
-    networking: [],
-    'physical-troubleshooting': [],
-  };
-  const positionByCategory: Record<CategoryId, number> = {
-    'active-directory': 0,
-    networking: 0,
-    'physical-troubleshooting': 0,
-  };
-  const scoreByCategory: Record<CategoryId, number> = {
-    'active-directory': 0,
-    networking: 0,
-    'physical-troubleshooting': 0,
-  };
-  const answersByCategory: Record<CategoryId, Record<string, AnswerRecord>> = {
-    'active-directory': {},
-    networking: {},
-    'physical-troubleshooting': {},
-  };
   const progress: ProgressState = {
     version: 1,
-    completedByCategory,
-    positionByCategory,
-    scoreByCategory,
-    answersByCategory,
+    completedByCategory: createCategoryMap(() => []),
+    positionByCategory: createCategoryMap(() => 0),
+    scoreByCategory: createCategoryMap(() => 0),
+    answersByCategory: createCategoryMap(() => ({})),
     session: {
       categoryId: null,
       position: 0,

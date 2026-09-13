@@ -6,7 +6,7 @@ This repository is a Windows-first, local-first practice tool for IT support ski
 
 ### Issue tracker
 
-Issues and specs are tracked as local Markdown files under `.scratch/`. See `docs/agents/issue-tracker.md`.
+GitHub is the canonical issue tracker; local supporting Markdown context lives under `.scratch/`. See `docs/agents/issue-tracker.md`.
 
 ### Domain docs
 

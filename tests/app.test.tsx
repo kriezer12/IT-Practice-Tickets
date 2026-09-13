@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
+import { UnavailableCase } from '../src/components/UnavailableCase';
 import '../src/styles.css';
 
 function openTrack(name: string) {
@@ -58,6 +59,29 @@ describe('guided practice flow', () => {
     expect(screen.getByText('One laptop has no internet access')).toBeTruthy();
   });
 
+  it('keeps first-answer feedback and score after a review resubmission', () => {
+    render(<App />);
+    openTrack('Active Directory');
+
+    fireEvent.click(screen.getAllByRole('radio')[0]);
+    fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
+    expect(screen.getByText(/Not the highest-signal first check/)).toBeTruthy();
+    expect(screen.getByText('Unlock the account and immediately reset the password')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /Previous/i }));
+    fireEvent.click(screen.getAllByRole('radio')[1]);
+    fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
+
+    expect(screen.getByText('Unlock the account and immediately reset the password')).toBeTruthy();
+    expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
+    expect(screen.getByText(/Not the highest-signal first check/)).toBeTruthy();
+    expect(screen.queryByText(/Correct — this is the highest-signal first check/)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /Library/i }));
+    expect(screen.getByText('01 / 10 COMPLETE')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Active Directory/ }).textContent).toContain('0 RIGHT');
+  });
+
   it('reaches completion only after submitting all ten cases', () => {
     render(<App />);
     openTrack('Physical Troubleshooting');
@@ -100,6 +124,41 @@ describe('guided practice flow', () => {
 
     expect(document.documentElement.dataset.theme).toBe('dark');
     expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
+  });
+
+  it('restores focus to the library heading after practice and completion transitions', () => {
+    render(<App />);
+    openTrack('Active Directory');
+    fireEvent.click(screen.getByRole('button', { name: /Library/i }));
+    expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Practice library' }));
+
+    openTrack('Physical Troubleshooting');
+    for (let index = 0; index < 10; index += 1) {
+      fireEvent.click(screen.getAllByRole('radio')[0]);
+      fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
+      fireEvent.click(screen.getByRole('button', { name: index === 9 ? /See your category result/i : /Next case/i }));
+    }
+    fireEvent.click(screen.getByRole('button', { name: /Back to library/i }));
+
+    expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Practice library' }));
+  });
+
+  it('provides a keyboard skip link to the main content target', () => {
+    render(<App />);
+
+    expect(screen.getByRole('link', { name: 'Skip to main content' }).getAttribute('href')).toBe('#main-content');
+    expect(screen.getByRole('main').getAttribute('id')).toBe('main-content');
+    expect(screen.getByRole('main').getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('renders an explicit unavailable-case fallback with a return action', () => {
+    const onBack = vi.fn();
+    render(<UnavailableCase categoryName="Networking" onBack={onBack} />);
+
+    expect(screen.getByRole('heading', { name: /This case is unavailable/ })).toBeTruthy();
+    expect(screen.getByText(/saved Networking case is no longer in the local catalog/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Return to library/i }));
+    expect(onBack).toHaveBeenCalledTimes(1);
   });
 
   it('offers a confirmed category-scoped retry from the completion view', () => {

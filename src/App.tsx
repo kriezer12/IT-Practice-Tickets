@@ -3,6 +3,7 @@ import { CATEGORIES, getCategoryQuestions } from './data/catalog';
 import { CompletionView } from './components/CompletionView';
 import { Library } from './components/Library';
 import { PracticeView } from './components/PracticeView';
+import { UnavailableCase } from './components/UnavailableCase';
 import { loadProgress, markAnswered, resetCategoryProgress, saveProgress, setCategoryPosition, setSession } from './lib/progress';
 import type { CategoryId, PracticePhase, PracticeSession, ProgressState } from './types';
 
@@ -97,6 +98,12 @@ export default function App() {
   const activeCategory = categoryId ? CATEGORIES.find((category) => category.id === categoryId) : undefined;
   const activeQuestions = categoryId ? getCategoryQuestions(categoryId) : [];
   const currentQuestion = activeQuestions[position];
+  const storedAnswer = categoryId && currentQuestion
+    ? progress.answersByCategory[categoryId][currentQuestion.id]
+    : undefined;
+  const feedback = phase === 'evidence' && storedAnswer
+    ? { choiceId: storedAnswer.choiceId, correct: storedAnswer.correct }
+    : null;
 
   const persistProgress = (next: ProgressState) => {
     setProgress(next);
@@ -235,13 +242,13 @@ export default function App() {
 
   if (!categoryId) return <Library categories={CATEGORIES} progress={progress} onSelect={selectCategory} theme={theme} onToggleTheme={toggleTheme} />;
   if (showCompletion && activeCategory) return <CompletionView category={activeCategory} score={progress.scoreByCategory[categoryId]} onReview={reviewCategory} onRetry={resetTrack} onLibrary={returnToLibrary} />;
-  if (!activeCategory || !currentQuestion) return <Library categories={CATEGORIES} progress={progress} onSelect={selectCategory} theme={theme} onToggleTheme={toggleTheme} />;
+  if (!activeCategory || !currentQuestion) return <UnavailableCase categoryName={activeCategory?.name} onBack={returnToLibrary} />;
 
   return <PracticeView
     category={activeCategory}
     question={currentQuestion}
     navigation={{ position, total: activeQuestions.length }}
-    state={{ phase, selectedChoice, correct: selectedChoice === currentQuestion.correctChoiceId }}
+    state={{ phase, selectedChoice, feedback }}
     actions={{
       onBack: returnToLibrary,
       onPrevious: goPrevious,

@@ -9,7 +9,7 @@ import { TicketPanel } from './TicketPanel';
 type PracticeViewState = {
   phase: Exclude<PracticePhase, 'complete'>;
   selectedChoice: string | null;
-  correct: boolean;
+  feedback: { choiceId: string; correct: boolean } | null;
 };
 
 type PracticeViewActions = {
@@ -33,11 +33,13 @@ type PracticeViewProps = {
 
 export function PracticeView({ category, question, navigation, state, actions, theme }: PracticeViewProps) {
   const { position, total } = navigation;
-  const { phase, selectedChoice, correct } = state;
+  const { phase, selectedChoice, feedback } = state;
   const { onBack, onPrevious, onNext, onSelectChoice, onSubmit, onReset, onToggleTheme } = actions;
   const progress = ((position + 1) / total) * 100;
-  const selectedAction = question.choices.find((choice) => choice.id === selectedChoice)?.label ?? 'No action selected';
+  const feedbackAction = feedback?.choiceId ?? selectedChoice;
+  const selectedAction = question.choices.find((choice) => choice.id === feedbackAction)?.label ?? 'No action selected';
   const correctAction = question.choices.find((choice) => choice.id === question.correctChoiceId)?.label ?? 'Unavailable';
+  const correct = feedback?.correct ?? false;
   const headingRef = useRef<HTMLHeadingElement | null>(null);
 
   useEffect(() => {
@@ -46,11 +48,12 @@ export function PracticeView({ category, question, navigation, state, actions, t
 
   return (
     <div className="practice-page">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
       <header className="practice-header">
         <button className="back-button" type="button" onClick={onBack}><span aria-hidden="true">←</span> Library</button>
         <div className="practice-header__meta"><span className="status-chip"><span className="status-dot" aria-hidden="true" />{category.shortName} / LOCAL</span><ThemeToggle theme={theme} onToggle={onToggleTheme} /></div>
       </header>
-      <main className="practice-main">
+      <main className="practice-main" id="main-content" tabIndex={-1}>
         <section className="practice-intro">
           <div><p className="eyebrow">{category.eyebrow} / GUIDED CASE</p><h1>{category.name}</h1><p>{category.description}</p></div>
           <div className="case-progress"><span className="eyebrow">CASE</span><strong>{String(position + 1).padStart(2, '0')}<small> / {String(total).padStart(2, '0')}</small></strong><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div>

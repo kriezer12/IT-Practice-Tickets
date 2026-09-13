@@ -96,6 +96,29 @@ describe('guided practice flow', () => {
     expect(screen.getByText(/\/ 10 RIGHT/)).toBeTruthy();
   });
 
+  it('preserves completed progress after reviewing and reloading a category', () => {
+    const firstRender = render(<App />);
+    openTrack('Physical Troubleshooting');
+
+    for (let index = 0; index < 10; index += 1) {
+      fireEvent.click(screen.getAllByRole('radio')[0]);
+      fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
+      fireEvent.click(screen.getByRole('button', { name: index === 9 ? /See your category result/i : /Next case/i }));
+    }
+
+    fireEvent.click(screen.getByRole('button', { name: /Review cases/i }));
+    firstRender.unmount();
+    render(<App />);
+
+    expect(screen.getByText('PC turns on, but no display')).toBeTruthy();
+    expect(screen.getByText('01', { selector: 'strong' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Library/i }));
+
+    const physicalCard = screen.getByRole('button', { name: /Physical Troubleshooting/ });
+    expect(physicalCard.textContent).toContain('10 / 10 COMPLETE');
+    expect(physicalCard.textContent).toContain('10 RIGHT');
+  });
+
   it('restores the active case and revealed phase after a normal reload', () => {
     const firstRender = render(<App />);
     openTrack('Networking');

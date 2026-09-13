@@ -20,6 +20,7 @@ Use a monochrome semantic palette:
 - Use Geist Pixel for high-impact display headings when the local asset is available.
 - Use Geist for body copy and interface text.
 - Use Geist Mono for labels, progress metadata, IDs, and technical values.
+- Do not fetch fonts remotely in the first release; use installed Geist families when available, then local/system fallbacks.
 - Small labels are uppercase, compact, and widely tracked. Body text remains readable with comfortable line height.
 
 ## Layout and shape

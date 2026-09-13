@@ -226,7 +226,8 @@ export default function App() {
 
   const reviewCategory = () => {
     if (!categoryId) return;
-    persistProgress(setSession(progress, {
+    const positioned = setCategoryPosition(progress, categoryId, 0);
+    persistProgress(setSession(positioned, {
       categoryId,
       position: 0,
       phase: 'prompt',

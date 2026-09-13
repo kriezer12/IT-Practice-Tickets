@@ -11,6 +11,7 @@ type Theme = 'light' | 'dark';
 type ActivePhase = Exclude<PracticePhase, 'complete'>;
 
 const THEME_STORAGE_KEY = 'it-skills-practice-theme';
+const THEME_COLORS: Record<Theme, string> = { light: '#f9f9fa', dark: '#0c0c0f' };
 
 function initialTheme(): Theme {
   if (typeof window === 'undefined') return 'light';
@@ -88,6 +89,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme]);
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, theme);
     } catch {

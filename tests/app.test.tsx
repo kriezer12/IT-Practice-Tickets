@@ -156,6 +156,23 @@ describe('guided practice flow', () => {
     expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
   });
 
+  it('keeps the browser theme color synchronized with the runtime theme', () => {
+    const themeColor = document.createElement('meta');
+    themeColor.name = 'theme-color';
+    themeColor.content = '#f9f9fa';
+    document.head.append(themeColor);
+
+    try {
+      render(<App />);
+
+      expect(themeColor.content).toBe('#f9f9fa');
+      fireEvent.click(screen.getByRole('button', { name: 'Switch to dark mode' }));
+      expect(themeColor.content).toBe('#0c0c0f');
+    } finally {
+      themeColor.remove();
+    }
+  });
+
   it('keeps the answer-panel Next case control keyboard-focusable in both themes', () => {
     render(<App />);
     openTrack('Active Directory');

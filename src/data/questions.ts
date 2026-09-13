@@ -1,9 +1,9 @@
 import type { PracticeQuestion } from '../types';
 
-const q = (question: PracticeQuestion): PracticeQuestion => question;
+const createPracticeQuestion = (question: PracticeQuestion): PracticeQuestion => question;
 
 export const QUESTIONS: PracticeQuestion[] = [
-  q({
+  createPracticeQuestion({
     id: 'ad-01', category: 'active-directory', order: 1,
     ticket: { subject: 'User is locked out after repeated sign-ins', requester: 'Maya Santos', environment: 'Windows 11 workstation on the corp domain', report: '“My password is correct, but Windows keeps saying my account is locked.”', additionalInfo: 'The user can sign in to email from a phone. No other users are affected.' },
     prompt: 'What would you check first?',
@@ -13,7 +13,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Confirming the lockout state and its source prevents the account from being unlocked only to lock again. It also avoids changing a password when the password itself is not the root cause.',
     takeaway: 'When a domain account is locked, verify status and source before changing credentials.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'ad-02', category: 'active-directory', order: 2,
     ticket: { subject: 'New employee cannot open the team share', requester: 'Jordan Lee', environment: 'Windows 11 laptop; SMB share on FILE-02', report: '“I can sign in, but the Finance share says access denied.”', additionalInfo: 'Jordan joined the Finance team yesterday. The share works for the rest of the team.' },
     prompt: 'What is the most useful first check?',
@@ -23,7 +23,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Access should be diagnosed from the user’s group membership and effective permissions. Granting admin rights would hide the permission problem and violate least privilege.',
     takeaway: 'For share access, trace identity → group membership → effective permissions.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'ad-03', category: 'active-directory', order: 3,
     ticket: { subject: 'Password change works elsewhere but not on one PC', requester: 'Ana Reyes', environment: 'Windows 10 desktop in a branch office', report: '“I changed my password on the portal, but this computer rejects it.”', additionalInfo: 'Ana can sign in to a different domain-joined PC with the new password.' },
     prompt: 'What would you validate first?',
@@ -33,7 +33,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Because the new password works elsewhere, the account is healthy. The first useful branch is whether this computer can contact the domain to validate the current credential.',
     takeaway: 'When one machine disagrees with the rest of the domain, test that machine’s domain path first.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'ad-04', category: 'active-directory', order: 4,
     ticket: { subject: 'Computer cannot join the domain', requester: 'Sam Wilson', environment: 'Fresh Windows 11 build on a new office network', report: '“The domain name is not found during setup.”', additionalInfo: 'The domain controller and the new PC are in the same office, but the PC received settings automatically.' },
     prompt: 'Which check has the highest signal?',
@@ -43,7 +43,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Domain discovery depends on DNS service records. A public DNS resolver can resolve internet names but will not know the organization’s internal AD records.',
     takeaway: 'A domain join starts with correct internal DNS, not with renaming or disabling security controls.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'ad-05', category: 'active-directory', order: 5,
     ticket: { subject: 'User says a policy change did not apply', requester: 'Priya Nair', environment: 'Windows 11 laptop in the Sales OU', report: '“The mapped printer from the new policy is missing.”', additionalInfo: 'The policy was edited this morning. Other Sales users have not reported the same issue yet.' },
     prompt: 'What should you inspect before editing the policy again?',
@@ -53,7 +53,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'A resulting-set-of-policy report separates “the policy is wrong” from “the policy never targeted this user.” It is faster and safer than making another blind edit.',
     takeaway: 'Use the resulting policy before changing a GPO that appears to be missing.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'ad-06', category: 'active-directory', order: 6,
     ticket: { subject: 'New workstation misses the security baseline', requester: 'Security Operations', environment: 'Windows 11 computer recently moved into a new OU', report: '“The baseline settings are not present after the move.”', additionalInfo: 'The workstation object was moved last night and the baseline GPO exists in the domain.' },
     prompt: 'What is the first scope check?',
@@ -63,7 +63,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Group Policy follows the scope created by links, inheritance, and filtering. Confirming the object’s OU and the GPO link is the shortest path to a scope issue.',
     takeaway: 'When a computer moves OUs, verify the new OU’s GPO links and inheritance first.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'ad-07', category: 'active-directory', order: 7,
     ticket: { subject: 'Account shows disabled during a support call', requester: 'Luis Garcia', environment: 'Shared Windows workstation in the training room', report: '“My account suddenly stopped working.”', additionalInfo: 'The account is not reported as locked. The manager is available to confirm the user’s status.' },
     prompt: 'What should you verify before changing the account?',
@@ -73,7 +73,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'A disabled account can be an intentional access control, so the support step is to confirm state and authorization. Re-enabling it without context could restore access improperly.',
     takeaway: 'Treat a disabled account as a security state to verify, not as an error to bypass.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'ad-08', category: 'active-directory', order: 8,
     ticket: { subject: 'Home drive is missing after sign-in', requester: 'Elena Cruz', environment: 'Windows 11 laptop used remotely', report: '“My H: drive is not in File Explorer today.”', additionalInfo: 'Elena can open the file server by name, and the issue follows her account on two laptops.' },
     prompt: 'Which evidence would narrow this down fastest?',
@@ -83,7 +83,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'The symptom follows the user while the server is reachable, so the policy-driven mapping is the high-signal path. A resulting policy report reveals whether the item ran and why it was filtered.',
     takeaway: 'When a mapped drive follows the user, inspect policy scope before hardware.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'ad-09', category: 'active-directory', order: 9,
     ticket: { subject: 'New group access is still denied', requester: 'Noah Kim', environment: 'Windows 11 desktop accessing an internal app', report: '“I was added to the Support group, but the app still says I am not authorized.”', additionalInfo: 'The group change was made 10 minutes ago. Noah has kept the same Windows session open.' },
     prompt: 'What would you try first?',
@@ -93,7 +93,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Windows access tokens are created during sign-in and may not reflect a newly added group until the session is refreshed. Re-authentication is the appropriate first action.',
     takeaway: 'A correct group change may require a new sign-in before applications see it.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'ad-10', category: 'active-directory', order: 10,
     ticket: { subject: 'Kerberos errors appear after a workstation returns', requester: 'IT Monitoring', environment: 'Windows 11 workstation moved between offices', report: '“The user sees clock-skew errors when opening internal services.”', additionalInfo: 'The workstation was offline for several days and its clock is 14 minutes behind the domain controller.' },
     prompt: 'What is the highest-signal first check?',
@@ -104,7 +104,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     takeaway: 'For Kerberos clock-skew errors, compare client time with a domain time source first.',
   }),
 
-  q({
+  createPracticeQuestion({
     id: 'net-01', category: 'networking', order: 1,
     ticket: { subject: 'One laptop has no internet access', requester: 'Rina Patel', environment: 'Windows 11 laptop on office Wi-Fi', report: '“Everyone else is online, but this laptop cannot load any sites.”', additionalInfo: 'The Wi-Fi icon shows connected. The user has not moved desks.' },
     prompt: 'What would you check first?',
@@ -114,7 +114,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Before testing the internet, verify whether the client received the basic network settings needed to leave its local subnet. This separates Wi-Fi association from usable connectivity.',
     takeaway: 'A connected icon is not proof of a usable IP configuration.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'net-02', category: 'networking', order: 2,
     ticket: { subject: 'Internal site opens by IP but not by name', requester: 'Owen Brooks', environment: 'Windows 11 desktop in the corporate LAN', report: '“The app works when I type its IP, but the hostname fails.”', additionalInfo: 'Other internal websites work by name on the same computer.' },
     prompt: 'What is the most useful first test?',
@@ -124,7 +124,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'If the IP path works and the name does not, DNS is the highest-signal branch. A direct lookup shows whether the client is asking the right server and whether that server has the record.',
     takeaway: 'Separate routing from name resolution: IP success plus hostname failure points to DNS.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'net-03', category: 'networking', order: 3,
     ticket: { subject: 'Workstation receives a 169.254 address', requester: 'Facilities Desk', environment: 'Windows 10 kiosk connected by Ethernet', report: '“The kiosk cannot reach the scheduling system.”', additionalInfo: 'The switch port light is on. Nearby kiosks are working.' },
     prompt: 'Which first check best explains this address?',
@@ -134,7 +134,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'A 169.254 address is an automatic fallback when DHCP does not provide a lease. Check the path to DHCP, including the port’s VLAN assignment, before changing application settings.',
     takeaway: 'APIPA is a clue about DHCP failure, not proof that the cable is physically disconnected.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'net-04', category: 'networking', order: 4,
     ticket: { subject: 'Wi-Fi drops in one conference room', requester: 'Events Team', environment: 'Company wireless network near the east meeting room', report: '“Calls become choppy whenever we meet in this room.”', additionalInfo: 'The issue affects several laptops in the same room while wired devices remain stable.' },
     prompt: 'What should you compare first?',
@@ -144,7 +144,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'A location-specific, multi-client issue is stronger evidence for wireless conditions than for individual laptop software. Compare signal and channel behavior before changing security settings.',
     takeaway: 'Use the shape of the outage—many clients, one place—to choose the right network layer.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'net-05', category: 'networking', order: 5,
     ticket: { subject: 'Printer is reachable from one subnet only', requester: 'Admin Services', environment: 'Network printer on the office device VLAN', report: '“Accounting can print, but the front desk cannot find the printer.”', additionalInfo: 'Both teams use the same print queue name. The printer’s IP responds from the Accounting subnet.' },
     prompt: 'What would you inspect first?',
@@ -154,7 +154,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Subnet-specific reachability points to routing or filtering between VLANs. Test the path and required print ports from the affected subnet before changing printer hardware.',
     takeaway: 'When one subnet works and another fails, compare the network path and policy between them.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'net-06', category: 'networking', order: 6,
     ticket: { subject: 'Duplicate IP warning on a workstation', requester: 'Warehouse Ops', environment: 'Windows 11 handheld-docking station on Ethernet', report: '“The network keeps disconnecting and Windows says another device has the same address.”', additionalInfo: 'The dock was recently moved from a lab bench to the warehouse floor.' },
     prompt: 'What is the safest first investigation?',
@@ -164,7 +164,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Capture the current identity and compare it to DHCP and switch evidence before changing addressing. That preserves the trail and avoids creating another conflict.',
     takeaway: 'Investigate duplicate IPs from identity and lease evidence before assigning new addresses.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'net-07', category: 'networking', order: 7,
     ticket: { subject: 'File transfers are much slower than usual', requester: 'Design Studio', environment: 'Windows 11 desktop using a wired dock', report: '“The file server takes minutes to open a project folder.”', additionalInfo: 'The server is healthy for other users. A speed test shows the affected desk is negotiating at 100 Mbps instead of 1 Gbps.' },
     prompt: 'What is the highest-signal first check?',
@@ -174,7 +174,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'The measured link speed gives a concrete explanation for the slowdown and focuses testing on the local physical path. There is no reason to modify the server first.',
     takeaway: 'For a single wired desk with slow transfers, inspect negotiated link speed and the local path.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'net-08', category: 'networking', order: 8,
     ticket: { subject: 'VPN connects but internal names fail', requester: 'Remote Support', environment: 'Windows 11 laptop on home broadband', report: '“The VPN says connected, but I cannot open the intranet.”', additionalInfo: 'Public websites work. The VPN client shows a successful authentication.' },
     prompt: 'What should you inspect first after connection?',
@@ -184,7 +184,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'A connected VPN is only the beginning; the client must receive the routes and name-resolution behavior needed for internal resources. Checking both explains why public and private access differ.',
     takeaway: '“VPN connected” confirms authentication, not that internal routes and DNS are working.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'net-09', category: 'networking', order: 9,
     ticket: { subject: 'Only one internal hostname is stale', requester: 'Application Team', environment: 'Windows 11 developer workstation', report: '“The app points to the old server, but the DNS record was updated.”', additionalInfo: 'A second workstation resolves the hostname to the new address.' },
     prompt: 'What would you compare first?',
@@ -194,7 +194,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Comparing the local cache with a fresh query distinguishes stale client state from a bad record. Rebuilding the workstation would be disproportionate.',
     takeaway: 'When one client has a stale name, compare cache and fresh DNS results before changing the record.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'net-10', category: 'networking', order: 10,
     ticket: { subject: 'One user cannot reach a service others can', requester: 'Support Queue', environment: 'Windows 11 desktop on the same subnet as peers', report: '“The dashboard times out only from my workstation.”', additionalInfo: 'The workstation can ping the gateway and resolve the service name. The service is reachable from a coworker’s desktop.' },
     prompt: 'What is the next focused check?',
@@ -205,7 +205,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     takeaway: 'Move up the stack deliberately: basic reachability, name resolution, then the service port.',
   }),
 
-  q({
+  createPracticeQuestion({
     id: 'physical-01', category: 'physical-troubleshooting', order: 1,
     ticket: { subject: 'PC turns on, but no display', requester: 'Classroom User', environment: 'Windows desktop with an unknown CPU/GPU configuration', report: '“My computer powers on, but nothing shows on either monitor.”', additionalInfo: 'Fans spin, the power LED is on, and both monitors show “No Signal.”' },
     prompt: 'What would you check first?',
@@ -215,7 +215,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'An F-suffix Intel CPU has no integrated graphics, so the motherboard video output cannot produce an image. Connect the monitor to the graphics card’s HDMI or DisplayPort output.',
     takeaway: 'A motherboard video port does not guarantee video output; confirm whether the CPU has integrated graphics.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'physical-02', category: 'physical-troubleshooting', order: 2,
     ticket: { subject: 'Desktop is completely unresponsive', requester: 'Front Desk', environment: 'Small-form-factor office PC', report: '“Nothing happens when I press the power button.”', additionalInfo: 'No fan movement, LEDs, or beep. The user moved the PC to a different desk yesterday.' },
     prompt: 'What is the safest first check?',
@@ -225,7 +225,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'With no signs of life, start at the external power path. The switched-off strip explains the complete absence of standby power and avoids unnecessary component replacement.',
     takeaway: 'No power signs means verify the external power path before opening the device.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'physical-03', category: 'physical-troubleshooting', order: 3,
     ticket: { subject: 'Desktop powers on but does not POST', requester: 'Lab Assistant', environment: 'Custom desktop with a diagnostic LED panel', report: '“The screen stays black and the system never reaches the logo.”', additionalInfo: 'The motherboard’s memory LED stays lit. The issue began after the desktop was transported.' },
     prompt: 'What should you inspect first?',
@@ -235,7 +235,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'The POST diagnostic LED narrows the fault before the operating system could even load. A careful reseat is the correct first physical isolation step after transport.',
     takeaway: 'Use motherboard diagnostics to choose a targeted hardware check before blaming the OS.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'physical-04', category: 'physical-troubleshooting', order: 4,
     ticket: { subject: 'PC shuts down during heavy work', requester: 'Rendering Team', environment: 'Tower workstation under a desk', report: '“It powers off after 10 minutes of rendering.”', additionalInfo: 'The system restarts normally afterward. The room is warm and the rear exhaust is barely moving.' },
     prompt: 'What is the highest-signal first inspection?',
@@ -245,7 +245,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Load-related shutdown plus a failed exhaust fan makes cooling the first branch. Measure and inspect the thermal path before replacing expensive components.',
     takeaway: 'A repeatable shutdown under load is a reason to inspect thermal conditions and airflow.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'physical-05', category: 'physical-troubleshooting', order: 5,
     ticket: { subject: 'USB scanner is not detected', requester: 'Inventory Team', environment: 'Windows 11 workstation with a powered USB hub', report: '“The scanner worked yesterday but is missing from the app.”', additionalInfo: 'The scanner’s status light is off. Other devices on the hub still work.' },
     prompt: 'What would you isolate first?',
@@ -255,7 +255,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'A direct known-good path is a fast physical isolation test. It avoids confusing a powered hub or application problem with a cable fault.',
     takeaway: 'For a missing USB device, isolate device, cable, and port with known-good parts.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'physical-06', category: 'physical-troubleshooting', order: 6,
     ticket: { subject: 'Secondary drive is missing from Windows', requester: 'Video Editor', environment: 'Windows 11 desktop with two internal SSDs', report: '“The project drive disappeared after I cleaned the case.”', additionalInfo: 'The drive is not visible in File Explorer. The PC boots from the primary SSD.' },
     prompt: 'What should you check before changing Windows settings?',
@@ -265,7 +265,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'UEFI detection separates a physical connection problem from a Windows volume problem. Reseating the connection is targeted, while formatting would risk data loss.',
     takeaway: 'When a drive vanishes after cleaning or moving a PC, check firmware detection and connections first.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'physical-07', category: 'physical-troubleshooting', order: 7,
     ticket: { subject: 'Laptop battery will not charge', requester: 'Field Sales', environment: 'Windows 11 laptop with USB-C charging', report: '“It stays at 12% even when plugged in.”', additionalInfo: 'The laptop runs on battery, but the charging indicator never appears.' },
     prompt: 'What is the first physical check?',
@@ -275,7 +275,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'The absence of a charging indicator makes the power-delivery path the first branch. Adapter wattage and cable capability matter for USB-C charging.',
     takeaway: 'No charging indicator means verify the complete charger path before replacing the battery.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'physical-08', category: 'physical-troubleshooting', order: 8,
     ticket: { subject: 'Monitor flickers when the desk moves', requester: 'Design Studio', environment: 'Windows 11 desktop with DisplayPort monitor', report: '“The image briefly goes black when I adjust the desk.”', additionalInfo: 'The monitor works normally when the cable is held still. A second monitor on another cable is stable.' },
     prompt: 'What would you test first?',
@@ -285,7 +285,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'The problem correlates with movement and follows one cable path. Reseating or replacing that cable is a direct, low-risk isolation step.',
     takeaway: 'A movement-dependent display fault points first to the cable, connector, or strain on the path.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'physical-09', category: 'physical-troubleshooting', order: 9,
     ticket: { subject: 'Keyboard and mouse cut out together', requester: 'Reception', environment: 'Windows desktop using a front USB hub', report: '“Both input devices stop, then return after I wiggle the hub.”', additionalInfo: 'The PC itself remains running and the devices work when connected to rear USB ports.' },
     prompt: 'What would you isolate first?',
@@ -295,7 +295,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     explanation: 'Because the devices share the same hub and recover on independent ports, the shared physical path is the best first branch. This avoids replacing two working peripherals.',
     takeaway: 'When multiple peripherals fail together, test the shared connection before each device.',
   }),
-  q({
+  createPracticeQuestion({
     id: 'physical-10', category: 'physical-troubleshooting', order: 10,
     ticket: { subject: 'Office printer reports a paper jam', requester: 'Operations', environment: 'Laser printer at the shared reception desk', report: '“The printer says jam, but there is no paper sticking out.”', additionalInfo: 'The message returns after clearing the visible tray. Printing is blocked for everyone.' },
     prompt: 'What should you check first?',

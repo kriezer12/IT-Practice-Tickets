@@ -45,7 +45,11 @@ describe('guided practice flow', () => {
     expect(screen.getByText('CORRECT ACTION')).toBeTruthy();
     expect(screen.getByText('FIRST CHECK RESULT')).toBeTruthy();
     expect(screen.getByText('Verify the guidance.')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Account Lockout and Management Tools' }).getAttribute('href')).toBe('https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/account-lockout-and-management-tool');
+    const citationLink = screen.getByRole('link', { name: /Account Lockout and Management Tools \(opens in a new tab\)/ });
+    expect(citationLink.getAttribute('href')).toBe('https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/account-lockout-and-management-tool');
+    expect(citationLink.getAttribute('target')).toBe('_blank');
+    expect(screen.getByRole('status').textContent).toContain('FIRST CHECK RESULT');
+    expect(document.querySelector('.answer-panel')?.getAttribute('aria-live')).toBeNull();
     expect(screen.getByText('Confirm whether a second domain-joined device has the same lockout before changing credentials')).toBeTruthy();
     expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
 

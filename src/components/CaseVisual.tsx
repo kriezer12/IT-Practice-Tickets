@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { PracticeVisual, PracticeVisualElement } from '../types';
 import { EVIDENCE_STATUS_METADATA } from './evidenceStatus';
 
@@ -18,7 +19,11 @@ function ElementDetails({ element, index, className }: ElementDetailsProps) {
 
 function FlowVisual({ elements }: { elements: PracticeVisualElement[] }) {
   return (
-    <ol className="case-visual__flow" aria-label="Directional flow visualization">
+    <ol
+      className="case-visual__flow"
+      aria-label="Directional flow visualization"
+      style={{ '--case-visual-columns': elements.length } as CSSProperties}
+    >
       {elements.map((element, index) => (
         <li className={`case-visual__flow-step case-visual__flow-step--${element.status}`} key={element.id}>
           <ElementDetails element={element} index={index} className="case-visual__flow-node" />

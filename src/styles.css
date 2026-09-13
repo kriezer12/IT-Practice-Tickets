@@ -219,7 +219,7 @@ h1 em, .completion-page h1 em { font-style: normal; color: var(--ink-muted); }
 .case-visual__detail-copy strong { color: var(--ink); font-size: 12px; line-height: 1.25; }
 .case-visual__detail-copy small { color: var(--ink-muted); font: 500 9px/1.2 'Geist Mono', 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
 .case-visual__detail > p { margin: 0; padding: 0 12px 13px 49px; color: var(--ink-soft); font-size: 12px; line-height: 1.45; }
-.case-visual__flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 0; padding: 5px 0 0; list-style: none; }
+.case-visual__flow { display: grid; grid-template-columns: repeat(var(--case-visual-columns, 1), minmax(0, 1fr)); gap: 18px; margin: 0; padding: 5px 0 0; list-style: none; }
 .case-visual__flow-step { position: relative; min-width: 0; }
 .case-visual__flow-connector { position: absolute; top: 50%; right: -18px; z-index: 2; color: var(--ink); font: 400 21px/1 'Geist Mono', 'Cascadia Mono', Consolas, monospace; transform: translate(50%, -50%); }
 .case-visual__flow-node { min-height: 150px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface-low); }
@@ -266,7 +266,8 @@ h1 em, .completion-page h1 em { font-style: normal; color: var(--ink-muted); }
 .source-list li { display: grid; gap: 5px; padding: 12px 13px; border: 1px solid var(--answer-border); border-radius: 9px; background: var(--answer-soft); }
 .source-list a { display: block; min-height: 44px; padding: 13px 0; color: var(--answer-ink); font-size: 13px; line-height: 1.3; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .source-list a:focus-visible { outline: 2px solid var(--answer-focus); outline-offset: 4px; border-radius: 2px; }
-.source-list span { color: var(--answer-subtle); font: 500 9px/1.2 'Geist Mono', 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace; letter-spacing: .1em; text-transform: uppercase; }
+.source-list li > span { color: var(--answer-subtle); font: 500 9px/1.2 'Geist Mono', 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace; letter-spacing: .1em; text-transform: uppercase; }
+.source-link__new-tab { color: var(--answer-subtle); font-size: .85em; font-weight: 500; }
 .source-list p { margin: 2px 0 0; color: var(--answer-muted); font-size: 12px; line-height: 1.45; }
 .answer-panel .secondary-button { margin-top: 23px; border-color: var(--answer-border); color: var(--answer-ink); background: transparent; }
 .answer-panel .secondary-button:hover { border-color: var(--answer-ink); color: var(--answer-surface); background: var(--answer-ink); }

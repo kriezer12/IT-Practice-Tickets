@@ -68,6 +68,7 @@ a { color: inherit; }
 .page-shell { max-width: 1440px; margin: 0 auto; padding: 0 48px; }
 .site-header, .practice-header { min-height: 92px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
 .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand, .skip-link { min-width: 44px; min-height: 44px; }
 .brand__mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 8px; background: var(--inverse); color: var(--inverse-ink); font-size: 19px; line-height: 1; transform: rotate(-10deg); }
 .brand__words { display: grid; gap: 4px; }
 .brand__words strong { font-size: 12px; letter-spacing: .15em; font-weight: 700; }

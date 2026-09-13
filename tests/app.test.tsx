@@ -195,9 +195,19 @@ describe('guided practice flow', () => {
   it('provides a keyboard skip link to the main content target', () => {
     render(<App />);
 
-    expect(screen.getByRole('link', { name: 'Skip to main content' }).getAttribute('href')).toBe('#main-content');
+    const skipLink = screen.getByRole('link', { name: 'Skip to main content' });
+    const brandLink = screen.getByRole('link', { name: 'IT Support Lab home' });
+
+    expect(skipLink.getAttribute('href')).toBe('#main-content');
     expect(screen.getByRole('main').getAttribute('id')).toBe('main-content');
     expect(screen.getByRole('main').getAttribute('tabindex')).toBe('-1');
+    expect(skipLink.className).toBe('skip-link');
+    expect(brandLink.className).toBe('brand');
+
+    skipLink.focus();
+    expect(document.activeElement).toBe(skipLink);
+    brandLink.focus();
+    expect(document.activeElement).toBe(brandLink);
   });
 
   it('renders an explicit unavailable-case fallback with a return action', () => {

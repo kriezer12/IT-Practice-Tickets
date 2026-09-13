@@ -1,10 +1,9 @@
 import type { RefObject } from 'react';
 import type { PracticeQuestion } from '../types';
+import { CaseVisual } from './CaseVisual';
+import { EVIDENCE_STATUS_METADATA } from './evidenceStatus';
 
 type EvidencePanelProps = { question: PracticeQuestion; headingRef: RefObject<HTMLHeadingElement | null> };
-
-const statusLabels = { pass: 'Pass', fail: 'Fail', note: 'Note' } as const;
-const statusSymbols = { pass: '✓', fail: '×', note: '·' } as const;
 
 export function EvidencePanel({ question, headingRef }: EvidencePanelProps) {
   return (
@@ -13,11 +12,12 @@ export function EvidencePanel({ question, headingRef }: EvidencePanelProps) {
       <div className="evidence-list">
         {question.evidence.map((item) => (
           <div className={`evidence-row evidence-row--${item.status}`} key={item.label}>
-            <span className="evidence-status"><span className="evidence-status__glyph" aria-hidden="true">{statusSymbols[item.status]}</span><span className="evidence-status__label">{statusLabels[item.status]}</span></span>
+            <span className="evidence-status"><span className="evidence-status__glyph" aria-hidden="true">{EVIDENCE_STATUS_METADATA[item.status].symbol}</span><span className="evidence-status__label">{EVIDENCE_STATUS_METADATA[item.status].label}</span></span>
             <div><strong>{item.label}</strong><p>{item.detail}</p></div>
           </div>
         ))}
       </div>
+      <CaseVisual visual={question.visual} />
     </section>
   );
 }

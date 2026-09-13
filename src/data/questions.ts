@@ -86,7 +86,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     id: 'ad-05', category: 'active-directory', order: 5,
     ticket: { subject: 'User says a policy change did not apply', requester: 'Priya Nair', environment: 'Windows 11 laptop in the Sales OU', report: '“The mapped printer from the new policy is missing.”', additionalInfo: 'The policy was edited this morning. Other Sales users have not reported the same issue yet.' },
     prompt: 'What should you inspect before editing the policy again?',
-    choices: [{ id: 'a', label: 'Run gpresult and confirm which policies applied' }, { id: 'b', label: 'Compare Priya’s resultant policy with a working Sales user' }, { id: 'c', label: 'Confirm the printer connection is available to a user already in the policy filter' }],
+    choices: [{ id: 'a', label: 'Run gpresult and confirm which policies applied' }, { id: 'b', label: 'Review the GPO’s security filtering and item-level targeting entries' }, { id: 'c', label: 'Compare Priya’s OU and group scope with the printer GPO link' }],
     correctChoiceId: 'a',
     evidence: [{ status: 'pass', label: 'Policy version', detail: 'The laptop has downloaded the current policy version.' }, { status: 'fail', label: 'Applied scope', detail: 'The printer GPO is filtered out because Priya’s security group is not included.' }, { status: 'note', label: 'Diagnostic command', detail: 'The resulting policy report shows the applied and denied GPOs.' }],
     visual: createVisual('flow', 'Policy result / download to scope', 'Follow the policy from the laptop’s downloaded version into the user filter; the report distinguishes current content from a policy that never applies.', [
@@ -134,7 +134,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     id: 'ad-08', category: 'active-directory', order: 8,
     ticket: { subject: 'Home drive is missing after sign-in', requester: 'Elena Cruz', environment: 'Windows 11 laptop used remotely', report: '“My H: drive is not in File Explorer today.”', additionalInfo: 'Elena can open the file server by name, and the issue follows her account on two laptops.' },
     prompt: 'Which evidence would narrow this down fastest?',
-    choices: [{ id: 'a', label: 'Review the resulting policy for the drive-mapping action' }, { id: 'b', label: 'Test the drive-mapping path with a second remote-access account' }, { id: 'c', label: 'Check the laptop’s current logon policy result before changing storage settings' }],
+    choices: [{ id: 'a', label: 'Review the resulting policy for the drive-mapping action' }, { id: 'b', label: 'Compare Elena’s remote-access group membership with a coworker whose drive maps' }, { id: 'c', label: 'Confirm the remote-access policy targets Elena’s current device and user scope' }],
     correctChoiceId: 'a',
     evidence: [{ status: 'pass', label: 'File server', detail: 'The server resolves and the share opens directly.' }, { status: 'fail', label: 'Logon action', detail: 'The drive-mapping item is filtered because the remote-access group condition is false.' }, { status: 'note', label: 'Scope', detail: 'The same result on two laptops points away from a device failure.' }],
     visual: createVisual('topology', 'Home drive / reachable share, filtered mapping', 'The server path works independently of the logon mapping. The missing drive follows Elena’s identity because the policy item is filtered on both laptops.', [
@@ -166,7 +166,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     id: 'ad-10', category: 'active-directory', order: 10,
     ticket: { subject: 'Kerberos errors appear after a workstation returns', requester: 'IT Monitoring', environment: 'Windows 11 workstation moved between offices', report: '“The user sees clock-skew errors when opening internal services.”', additionalInfo: 'The workstation was offline for several days and its clock is 14 minutes behind the domain controller.' },
     prompt: 'What is the highest-signal first check?',
-    choices: [{ id: 'b', label: 'Check the workstation clock against the domain time source without changing privileges' }, { id: 'a', label: 'Compare workstation and domain-controller time, then verify time sync' }, { id: 'c', label: 'Review the Kerberos failure time and source before forcing a new sign-in' }],
+    choices: [{ id: 'b', label: 'Check the domain controller’s time source status and synchronization hierarchy' }, { id: 'a', label: 'Compare workstation and domain-controller time, then verify time sync' }, { id: 'c', label: 'Review the Kerberos event details for a timestamp-skew error before changing policy' }],
     correctChoiceId: 'a',
     evidence: [{ status: 'pass', label: 'Network path', detail: 'The workstation can reach a domain controller.' }, { status: 'fail', label: 'Time offset', detail: 'The local clock is 14 minutes behind, outside Kerberos tolerance.' }, { status: 'note', label: 'Recovery', detail: 'Correct time synchronization should be verified before retesting services.' }],
     visual: createVisual('flow', 'Kerberos path / reachable DC, skewed clock', 'The workstation can reach the authenticating domain controller; the failure sits at the timestamp comparison before the service ticket is accepted.', [
@@ -231,7 +231,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     id: 'net-04', category: 'networking', order: 4,
     ticket: { subject: 'Wi-Fi drops in one conference room', requester: 'Events Team', environment: 'Company wireless network near the east meeting room', report: '“Calls become choppy whenever we meet in this room.”', additionalInfo: 'The issue affects several laptops in the same room while wired devices remain stable.' },
     prompt: 'What should you compare first?',
-    choices: [{ id: 'b', label: 'Compare signal level and channel use with a nearby client' }, { id: 'c', label: 'Test the same SSID on the less-congested band from that room' }, { id: 'a', label: 'Compare signal, channel conditions, and client behavior in that room' }],
+    choices: [{ id: 'b', label: 'Check the access point’s client retransmits and channel utilization for the room' }, { id: 'c', label: 'Test the same SSID on the less-congested band from that room' }, { id: 'a', label: 'Compare signal, channel conditions, and client behavior in that room' }],
     correctChoiceId: 'a',
     evidence: [{ status: 'pass', label: 'Wired baseline', detail: 'A wired test from the same area is stable.' }, { status: 'fail', label: 'Radio conditions', detail: 'Clients in the room report low signal and a crowded 2.4 GHz channel.' }, { status: 'note', label: 'Pattern', detail: 'Multiple affected clients in one location points toward RF or access-point coverage.' }],
     visual: createVisual('topology', 'Room signal / wired baseline to radio clients', 'The wired baseline is stable while several clients share one room-specific radio path. Compare the shared RF conditions before changing endpoint software or security.', [
@@ -279,7 +279,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     id: 'net-07', category: 'networking', order: 7,
     ticket: { subject: 'File transfers are much slower than usual', requester: 'Design Studio', environment: 'Windows 11 desktop using a wired dock', report: '“The file server takes minutes to open a project folder.”', additionalInfo: 'The server is healthy for other users. A speed test shows the affected desk is negotiating at 100 Mbps instead of 1 Gbps.' },
     prompt: 'What is the highest-signal first check?',
-    choices: [{ id: 'b', label: 'Measure the file server response from a second desk on the same switch' }, { id: 'c', label: 'Compare the dock’s negotiated rate with another port using the same cable' }, { id: 'a', label: 'Check negotiated link speed, cable, and dock port' }],
+    choices: [{ id: 'b', label: 'Measure the file server response from a second desk on the same switch' }, { id: 'c', label: 'Check the dock’s NIC link mode and duplex on the affected workstation' }, { id: 'a', label: 'Check negotiated link speed, cable, and dock port' }],
     correctChoiceId: 'a',
     evidence: [{ status: 'pass', label: 'Server baseline', detail: 'Other users reach the same server at normal speed.' }, { status: 'fail', label: 'Link negotiation', detail: 'The desk’s dock and cable are negotiating at 100 Mbps.' }, { status: 'note', label: 'Isolation', detail: 'A known-good cable and dock port can confirm the failing segment.' }],
     visual: createVisual('flow', 'Transfer path / server baseline to desk link', 'The server behaves normally for peers, so follow the affected desk’s negotiated link from dock to cable to switch port.', [
@@ -311,7 +311,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     id: 'net-09', category: 'networking', order: 9,
     ticket: { subject: 'Only one internal hostname is stale', requester: 'Application Team', environment: 'Windows 11 developer workstation', report: '“The app points to the old server, but the DNS record was updated.”', additionalInfo: 'A second workstation resolves the hostname to the new address.' },
     prompt: 'What would you compare first?',
-    choices: [{ id: 'a', label: 'Compare the client’s cached result with a fresh DNS lookup' }, { id: 'b', label: 'Restart the application and compare its next DNS lookup' }, { id: 'c', label: 'Check the workstation’s DNS suffix and resolver cache before changing application settings' }],
+    choices: [{ id: 'a', label: 'Compare the client’s cached result with a fresh DNS lookup' }, { id: 'b', label: 'Restart the application and compare its next DNS lookup' }, { id: 'c', label: 'Compare the affected workstation’s DNS server assignment with the healthy workstation' }],
     correctChoiceId: 'a',
     evidence: [{ status: 'pass', label: 'Authoritative record', detail: 'The internal DNS server returns the new address.' }, { status: 'fail', label: 'Local cache', detail: 'The affected workstation still has the old answer cached.' }, { status: 'note', label: 'Scope', detail: 'A second workstation resolving correctly points away from a server-wide record issue.' }],
     visual: createVisual('flow', 'DNS freshness / authority to client cache', 'The authoritative server has the new address, while one client still holds the old answer. Compare those two points before changing application code or rebuilding the workstation.', [
@@ -344,7 +344,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     id: 'physical-01', category: 'physical-troubleshooting', order: 1,
     ticket: { subject: 'PC turns on, but no display', requester: 'Classroom User', environment: 'Windows desktop with an unknown CPU/GPU configuration', report: '“My computer powers on, but nothing shows on either monitor.”', additionalInfo: 'Fans spin, the power LED is on, and both monitors show “No Signal.”' },
     prompt: 'What would you verify first?',
-    choices: [{ id: 'a', label: 'Verify the monitor input, cable/output path, and whether integrated or discrete graphics are available' }, { id: 'b', label: 'Verify each monitor’s selected input and test one known-good display path' }, { id: 'c', label: 'Check the PC’s diagnostic indicators before changing the graphics route' }],
+    choices: [{ id: 'a', label: 'Verify the monitor input, cable/output path, and whether integrated or discrete graphics are available' }, { id: 'b', label: 'Confirm the PC completes POST and record its normal diagnostic indicator pattern' }, { id: 'c', label: 'Check whether a discrete graphics output is present before using the motherboard port' }],
     correctChoiceId: 'a',
     evidence: [{ status: 'pass', label: 'Monitor power', detail: 'Both monitors power on and work with another computer.' }, { status: 'pass', label: 'Display cable', detail: 'The cable passes a known-good test.' }, { status: 'fail', label: 'Output path', detail: 'The cable is connected to the motherboard HDMI port while the installed CPU is an F-series model with no integrated graphics. No internal handling is indicated yet; if service becomes necessary, shut down, disconnect AC and any applicable removable power, follow manufacturer service guidance, and never handle a live device.' }],
     visual: createVisual('schematic', 'Display path / monitor input to graphics capability', 'Start with the unknown output path: verify the monitor input and cable, identify the CPU graphics capability, then follow the confirmed integrated or discrete output.', [
@@ -392,7 +392,7 @@ export const QUESTIONS: PracticeQuestion[] = [
     id: 'physical-04', category: 'physical-troubleshooting', order: 4,
     ticket: { subject: 'PC shuts down during heavy work', requester: 'Rendering Team', environment: 'Tower workstation under a desk', report: '“It powers off after 10 minutes of rendering.”', additionalInfo: 'The system restarts normally afterward. The room is warm and the rear exhaust is barely moving.' },
     prompt: 'What is the highest-signal first inspection?',
-    choices: [{ id: 'a', label: 'Check temperatures, fan operation, and airflow for blockage' }, { id: 'b', label: 'Compare temperatures and fan speed at idle before opening the case' }, { id: 'c', label: 'Check the system event log for a thermal or power-protection shutdown' }],
+    choices: [{ id: 'a', label: 'Check temperatures, fan operation, and airflow for blockage' }, { id: 'b', label: 'Inspect the external intake and exhaust vents for obstruction before opening the case' }, { id: 'c', label: 'Check the system event log for a thermal or power-protection shutdown' }],
     correctChoiceId: 'a',
     evidence: [{ status: 'pass', label: 'Load correlation', detail: 'The shutdown occurs under sustained CPU/GPU load.' }, { status: 'fail', label: 'Cooling path', detail: 'The rear exhaust fan is stalled and the filter is packed with dust.' }, { status: 'note', label: 'Protection', detail: 'Thermal protection can shut down a system to prevent damage. Before internal airflow service, shut down, disconnect AC and any applicable removable power, follow manufacturer service guidance, and never handle a live device.' }],
     visual: createVisual('flow', 'Thermal path / load to exhaust', 'The symptom appears under sustained load, then follows the cooling path from heat generation to a stalled exhaust fan and blocked filter.', [

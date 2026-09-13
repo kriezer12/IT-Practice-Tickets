@@ -67,6 +67,9 @@ describe('question catalog', () => {
     ['missing visual evidence reference', (question: PracticeQuestion) => { question.visual.elements[0].evidenceLabel = 'missing evidence'; }],
     ['missing visual text alternative', (question: PracticeQuestion) => { question.visual.description = ''; }],
     ['missing citation label', (question: PracticeQuestion) => { question.citations[0].label = ''; }],
+    ['missing citation publisher', (question: PracticeQuestion) => { question.citations[0].publisher = ''; }],
+    ['missing citation claim', (question: PracticeQuestion) => { question.citations[0].claim = ''; }],
+    ['invalid citation source type', (question: PracticeQuestion) => { (question.citations[0] as { sourceType: string }).sourceType = 'other'; }],
     ['invalid citation URL', (question: PracticeQuestion) => { question.citations[0].url = 'not-a-url'; }],
   ])('rejects %s with an actionable catalog error', (description, mutate) => {
     const questions = QUESTIONS.map(cloneQuestion);
@@ -127,5 +130,19 @@ describe('question catalog', () => {
     expect(errors).toContain(`Duplicate question id: ${questions[0].id}`);
     expect(errors).toContain(`active-directory has non-contiguous order at ${questions[0].id}`);
     expect(errors).not.toContain('active-directory must contain exactly 10 questions; found 10');
+  });
+
+  it('rejects a category with fewer than ten cases', () => {
+    const questions = QUESTIONS.filter((question) => question.id !== 'ad-01');
+
+    expect(validateCatalog(questions)).toContain('active-directory must contain exactly 10 questions; found 9');
+  });
+
+  it('rejects a category with more than ten cases', () => {
+    const adQuestion = QUESTIONS.find((question) => question.id === 'ad-01');
+    expect(adQuestion).toBeDefined();
+    const questions = [...QUESTIONS, { ...cloneQuestion(adQuestion!), id: 'ad-extra', order: 11 }];
+
+    expect(validateCatalog(questions)).toContain('active-directory must contain exactly 10 questions; found 11');
   });
 });

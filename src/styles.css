@@ -26,6 +26,7 @@
   --answer-muted: #d4d4d8;
   --answer-subtle: #a1a1aa;
   --answer-border: #3f3f46;
+  --answer-focus: #f4f4f5;
   --error: #ba1a1a;
   --success: #1d7f4f;
 }
@@ -53,6 +54,7 @@
   --answer-muted: #27272a;
   --answer-subtle: #52525b;
   --answer-border: #71717a;
+  --answer-focus: #111113;
   --error: #ff8e8e;
   --success: #70d49e;
 }
@@ -222,6 +224,7 @@ h1 em, .completion-page h1 em { font-style: normal; color: var(--ink-muted); }
 .takeaway strong { display: block; margin-top: 8px; color: var(--answer-ink); font-size: 14px; line-height: 1.4; font-weight: 500; }
 .answer-panel .secondary-button { margin-top: 23px; border-color: var(--answer-border); color: var(--answer-ink); background: transparent; }
 .answer-panel .secondary-button:hover { border-color: var(--answer-ink); color: var(--answer-surface); background: var(--answer-ink); }
+.answer-panel .secondary-button:focus-visible { outline-color: var(--answer-focus); }
 .practice-footer { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; padding: 26px 0 36px; }
 .practice-footer > :last-child { justify-self: end; }
 .practice-footer__center { display: grid; justify-items: center; gap: 13px; color: var(--ink-muted); font: 500 10px/1 'Geist Mono', 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace; letter-spacing: .12em; text-align: center; }

@@ -149,6 +149,25 @@ describe('guided practice flow', () => {
     expect(screen.getByText('Check the account status and lockout source in Active Directory')).toBeTruthy();
   });
 
+  it('keeps the answer-panel Next case control keyboard-focusable in both themes', () => {
+    render(<App />);
+    openTrack('Active Directory');
+    fireEvent.click(screen.getAllByRole('radio')[0]);
+    fireEvent.click(screen.getByRole('button', { name: /Reveal what you find/i }));
+
+    const nextButton = screen.getByRole('button', { name: /Next case/i });
+    nextButton.focus();
+
+    expect(document.activeElement).toBe(nextButton);
+    expect(nextButton.className).toContain('secondary-button--inverse');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to dark mode' }));
+    const darkNextButton = screen.getByRole('button', { name: /Next case/i });
+    darkNextButton.focus();
+
+    expect(document.activeElement).toBe(darkNextButton);
+  });
+
   it('restores focus to the library heading after practice and completion transitions', () => {
     render(<App />);
     openTrack('Active Directory');
